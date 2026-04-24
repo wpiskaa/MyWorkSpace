@@ -388,8 +388,20 @@ window.showEventDetail = function(id) {
 };
 
 window.closeTaskModal = function() {
-  document.getElementById('taskModal').classList.remove('open');
+  const modal = document.getElementById('taskModal');
+  const content = modal.querySelector('.modal-content');
+  modal.classList.remove('open');
+  // Reset SS mode if active
+  if(content.classList.contains('ss-mode')) {
+    content.classList.remove('ss-mode');
+    modal.style.background = 'rgba(5,5,15,0.85)';
+  }
 };
+
+// Click overlay to close
+document.getElementById('taskModal').addEventListener('click', function(e) {
+  if(e.target === this) closeTaskModal();
+});
 
 /* ─── RENDER TEAM ─── */
 function renderTeam() {
@@ -514,17 +526,14 @@ init();
 /* ─── SS MODE LOGIC ─── */
 window.toggleSSMode = function() {
   const modal = document.querySelector('.modal-content');
-  const badge = document.getElementById('m-ss-badge');
   const overlay = document.getElementById('taskModal');
   const body = document.querySelector('.modal-body');
   
   if (modal.classList.contains('ss-mode')) {
     modal.classList.remove('ss-mode');
-    badge.style.display = 'none';
     overlay.style.background = 'rgba(5,5,15,0.85)';
   } else {
     modal.classList.add('ss-mode');
-    badge.style.display = 'block';
     overlay.style.background = '#000'; // Solid black for contrast
     body.scrollTop = 0;
   }
