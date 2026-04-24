@@ -273,7 +273,7 @@ function buildForm(type,editId) {
   }
   if(type==='task') {
     const t=editId?tasks.find(x=>x.id===editId):{};
-    const eventOptions = `<option value="">-- Tanpa Event --</option>` + events.map(e=>`<option value="${e.id}"${t.eventId===e.id?' selected':''}>${e.title}</option>`).join('');
+    const eventOptions = `<option value="">-- Tanpa Event --</option>` + events.map(e=>`<option value="${e.id}"${t.eventId===e.id?' selected':''}>${e.title} (${e.date})</option>`).join('');
     return `<div class="form-group"><label class="form-label">Judul Tugas *</label><input class="form-input" id="f-title" value="${t.title||''}"></div>
       <div class="form-row">
         <div class="form-group">
