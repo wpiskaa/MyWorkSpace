@@ -245,7 +245,15 @@ function renderTasks() {
     }
 
     // Assignees summary
-    const assignedNames = (t.assignedTo || []).map(id => {
+    const filteredIds = (t.assignedTo || []).filter(id => {
+      if(currentFilter === 'all') return true;
+      const m = members.find(x => x.id === id);
+      if(!m) return false;
+      const r = m.roles || (m.role ? [m.role] : []);
+      return r.includes(currentFilter);
+    });
+
+    const assignedNames = filteredIds.map(id => {
       const m = members.find(x => x.id === id);
       return m ? m.name : 'Unknown';
     }).join(', ');
@@ -329,8 +337,16 @@ window.showTaskDetail = function(id) {
   }
   
   // Assignees
+  const filteredIds = (t.assignedTo || []).filter(id => {
+    if(currentFilter === 'all') return true;
+    const m = members.find(x => x.id === id);
+    if(!m) return false;
+    const r = m.roles || (m.role ? [m.role] : []);
+    return r.includes(currentFilter);
+  });
+
   const mAss = document.getElementById('m-assignees');
-  mAss.innerHTML = (t.assignedTo || []).map(uid => {
+  mAss.innerHTML = filteredIds.map(uid => {
     const m = members.find(x => x.id === uid);
     if(!m) return '';
     return `<div class="member-chip" style="background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:6px 12px; border-radius:10px; font-size:12px;">${m.name}</div>`;
@@ -369,7 +385,15 @@ window.showEventDetail = function(id) {
   if(eventTasks.length > 0) {
     plotList.style.display = 'block';
     plotItems.innerHTML = eventTasks.map(t => {
-      const assignedNames = (t.assignedTo || []).map(uid => {
+      const filteredIds = (t.assignedTo || []).filter(id => {
+        if(currentFilter === 'all') return true;
+        const m = members.find(x => x.id === id);
+        if(!m) return false;
+        const r = m.roles || (m.role ? [m.role] : []);
+        return r.includes(currentFilter);
+      });
+
+      const assignedNames = filteredIds.map(uid => {
         const m = members.find(x => x.id === uid);
         return m ? m.name : 'Unknown';
       }).join(', ');
