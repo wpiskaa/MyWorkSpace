@@ -106,6 +106,12 @@ function setupHeroTyping() {
   type();
 }
 
+function setupParticles() {
+  const canvas = document.getElementById('particleCanvas');
+  if(!canvas) return;
+  // ... existing particle logic ...
+}
+
 function updateStats() {
   const today = new Date().toISOString().slice(0,10);
   const upCount = events.filter(e => e.date >= today).length;

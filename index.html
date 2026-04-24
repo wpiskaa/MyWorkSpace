@@ -4,52 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PISKA — Personal Workspace</title>
-  <meta name="description" content="Piska's Personal Workspace — Dashboard terpusat untuk kreativitas, manajemen, dan eksplorasi.">
+  <meta name="description" content="Piska's Personal Workspace — Dashboard terpusat untuk kreativitas dan manajemen.">
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Hero Specific */
-    .hero-piska {
-      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 120px 24px 60px; position: relative; overflow: hidden;
-    }
-    .piska-name {
-      font-size: clamp(80px, 20vw, 240px); font-weight: 900; line-height: 0.8; letter-spacing: -8px;
-      background: linear-gradient(135deg, #fff 30%, #6366f1 60%, #38bdf8 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-bottom: 40px; animation: fadeInUp 1s ease-out;
-      filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
-    }
-    .piska-tagline {
-      font-size: 20px; color: var(--text2); max-width: 500px; text-align: center;
-      line-height: 1.6; margin-bottom: 40px; animation: fadeInUp 1.2s ease-out;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar" id="navbar">
-  <div class="mesh-bg">
-    <div class="mesh-orb orb-1"></div>
-    <div class="mesh-orb orb-2"></div>
-    <div class="mesh-orb orb-3"></div>
-  </div>
-  <div class="noise-overlay"></div>
-  
-  <div class="piska-pet">
-    <div class="pet-speech" id="petSpeech">Systems Online. Greeting Piska...</div>
-    <div class="cat-head">
-      <div class="cat-ear ear-l"></div>
-      <div class="cat-ear ear-r"></div>
-      <div class="cat-eye"></div>
-      <div class="cat-eye"></div>
-    </div>
-  </div>
+<!-- MESH BACKGROUND -->
+<div class="mesh-bg">
+  <div class="mesh-orb orb-1"></div>
+  <div class="mesh-orb orb-2"></div>
+  <div class="mesh-orb orb-3"></div>
+</div>
+<div class="noise-overlay"></div>
 
+<!-- NAVIGATION -->
+<nav class="navbar" id="navbar">
   <div class="nav-container">
     <div class="nav-brand" onclick="location.href='admin.html'">
       <img src="https://ui-avatars.com/api/?name=Piska&background=6366f1&color=fff" id="userProfilePhoto" class="profile-img" alt="Piska">
@@ -66,23 +35,23 @@
   </div>
 </nav>
 
-<!-- HERO PISKA -->
+<!-- CYBER CAT MASCOT -->
+<div class="piska-pet">
+  <div class="pet-speech" id="petSpeech">Systems Active. Greeting Piska...</div>
+  <div class="cat-head">
+    <div class="cat-ear ear-l"></div>
+    <div class="cat-ear ear-r"></div>
+    <div class="cat-eye"></div>
+    <div class="cat-eye"></div>
+  </div>
+</div>
+
+<!-- HERO SECTION -->
 <section class="hero-piska">
-  <div class="aurora-bg">
-    <div class="aurora aurora-1" style="background:#0ea5e9; opacity: 0.2;"></div>
-    <div class="aurora aurora-2" style="background:#6366f1; opacity: 0.2;"></div>
-  </div>
-  
-  <div class="status-bubble animate-on-scroll">
-    <span class="badge-dot" style="background: var(--cyan);"></span>
-    Currently: Manifesting Ideas
-  </div>
-  
-  <h1 class="piska-name">PISKA.</h1>
-  <p class="piska-tagline">Web Developer, Creative Designer, and Tech Enthusiast. Welcome to my digital home base.</p>
-  
+  <h1 class="hero-title">PISKA.</h1>
+  <p class="hero-tagline">Web Developer, Creative Designer, and Tech Enthusiast. Elevating ideas into digital reality.</p>
   <div class="hero-actions">
-    <a href="#dashboard" class="btn-primary" style="padding: 16px 40px;">Explore Workspace</a>
+    <a href="#dashboard" class="btn-primary">Explore Workspace</a>
   </div>
 </section>
 
@@ -91,75 +60,67 @@
   <div class="section-container">
     <div class="dashboard-grid">
       
-      <!-- LEFT COLUMN: Music & Gallery -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
+      <!-- MUSIC & GALLERY -->
+      <div style="display: flex; flex-direction: column; gap: 32px;">
         <!-- Music Card -->
         <div class="dash-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="font-size:18px; font-weight:800;">Now Playing</h3>
-            <span style="font-size:11px; color:var(--text3); font-weight:700;">SPOTIFY</span>
+            <h3 class="card-title">Now Playing</h3>
+            <span style="font-size:11px; color:var(--text3); font-weight:800; letter-spacing:1px;">SPOTIFY</span>
           </div>
-          <div class="spotify-widget">
-            <iframe src="https://open.spotify.com/embed/track/52m690jqpxP1tHHkRNdl5p?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-          </div>
+          <iframe style="border-radius:12px; background:#000;" src="https://open.spotify.com/embed/track/52m690jqpxP1tHHkRNdl5p?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
         
         <!-- Gallery Card -->
         <div class="dash-card">
-          <h3 style="font-size:18px; font-weight:800;">Memory Lane</h3>
+          <h3 class="card-title">Memory Lane</h3>
           <div class="gallery-grid">
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=400" alt="Visual 1"></div>
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&q=80&w=400" alt="Visual 2"></div>
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1633167606207-d840b5070fc2?auto=format&fit=crop&q=80&w=400" alt="Visual 3"></div>
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=400" alt="Visual 4"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1516259762381-22954d7d3ad2?q=80&w=2066" alt="Code"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070" alt="Dev"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070" alt="Tech"></div>
+            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072" alt="Web"></div>
           </div>
         </div>
       </div>
-      
-      <!-- RIGHT COLUMN: Workspaces & Play -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+      <!-- APPS & STATUS -->
+      <div style="display: flex; flex-direction: column; gap: 32px;">
+        <!-- Shortcuts Card -->
         <div class="dash-card">
-          <h3 style="font-size:18px; font-weight:800;">My Workspaces</h3>
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <a href="division.html" class="app-card">
-              <div class="app-icon" style="background: var(--purple);">🏢</div>
+          <h3 class="card-title">Quick Access</h3>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="app-card" onclick="location.href='division.html'">
+              <div class="app-icon" style="background: var(--purple);">📁</div>
               <div>
-                <h4 style="font-size:16px; font-weight:700;">Multimedia Portal</h4>
-                <p style="font-size:12px; color:var(--text2);">Management, Tasks & Team</p>
+                <div style="font-weight:700; color:#fff;">Multimedia Division</div>
+                <div style="font-size:12px; color:var(--text2);">Manage team and projects</div>
               </div>
-            </a>
-            <a href="game.html" class="app-card">
+            </div>
+            <div class="app-card" onclick="location.href='game.html'">
               <div class="app-icon" style="background: var(--pink);">🎮</div>
               <div>
-                <h4 style="font-size:16px; font-weight:700;">Gaming Zone</h4>
-                <p style="font-size:12px; color:var(--text2);">Block Blast Pro Edition</p>
+                <div style="font-weight:700; color:#fff;">Game Lounge</div>
+                <div style="font-size:12px; color:var(--text2);">Relax and play a game</div>
               </div>
-            </a>
-            <a href="photobooth.html" class="app-card">
-              <div class="app-icon" style="background: var(--cyan);">📸</div>
-              <div>
-                <h4 style="font-size:16px; font-weight:700;">Creative Studio</h4>
-                <p style="font-size:12px; color:var(--text2);">Custom Photobooth Frame</p>
-              </div>
-            </a>
+            </div>
           </div>
         </div>
-        
-        <!-- Stats Card (General Info) -->
-        <div class="dash-card" style="flex:1;">
-          <h3 style="font-size:18px; font-weight:800;">Quick Info</h3>
-          <div style="display:flex; flex-direction:column; gap:20px; padding-top:10px;">
+
+        <!-- Personal Info Card -->
+        <div class="dash-card">
+          <h3 class="card-title">System Info</h3>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
             <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:12px;">
               <span style="color:var(--text2); font-size:14px;">Status</span>
-              <span style="color:var(--cyan-l); font-weight:700; font-size:14px;">Active</span>
+              <span style="color:var(--cyan-l); font-weight:700; font-size:14px;">Operational</span>
             </div>
             <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:12px;">
               <span style="color:var(--text2); font-size:14px;">Projects</span>
-              <span style="color:#fff; font-weight:700; font-size:14px;">12+ Completed</span>
+              <span style="color:#fff; font-weight:700; font-size:14px;">Active</span>
             </div>
             <div style="display:flex; justify-content:space-between;">
-              <span style="color:var(--text2); font-size:14px;">Location</span>
-              <span style="color:#fff; font-weight:700; font-size:14px;">Yogyakarta, ID</span>
+              <span style="color:var(--text2); font-size:14px;">Owner</span>
+              <span style="color:#fff; font-weight:700; font-size:14px;">Piska</span>
             </div>
           </div>
         </div>
@@ -170,54 +131,29 @@
 </section>
 
 <!-- QUOTE SECTION -->
-<section class="quote-section">
-  <div class="section-container animate-on-scroll">
-    <div class="quote-text" id="piskaQuote">
-      "Creativity is intelligence having fun."
+<section class="section" style="text-align:center; padding: 100px 0; border-top: 1px solid var(--border);">
+  <div class="section-container">
+    <div id="piskaQuote" style="font-size: 32px; font-weight: 800; color: #fff; max-width: 800px; margin: 0 auto; line-height: 1.4; transition: opacity 0.8s;">
+      "The best way to predict the future is to create it."
     </div>
-    <div class="quote-author">— Albert Einstein</div>
+    <div style="color: var(--text2); margin-top: 24px; font-size: 16px; font-weight: 500;">— Abraham Lincoln</div>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer style="padding: 60px 0; border-top: 1px solid var(--border); text-align: center;">
-  <div class="section-container">
-    <p style="color: var(--text2); font-size: 14px;">© 2026 <strong>PISKA.dev</strong> · Crafted with Passion for Innovation.</p>
-  </div>
+  <p style="color: var(--text2); font-size: 14px;">© 2026 <strong>PISKA.dev</strong> · Professional Workspace</p>
 </footer>
 
 <script type="module" src="script.js"></script>
 <script>
-  // Simple Quote Rotator
-  const quotes = [
-    '"Creativity is intelligence having fun."',
-    '"Success is not final, failure is not fatal: it is the courage to continue that counts."',
-    '"The best way to predict the future is to create it."',
-    '"Simplicity is the ultimate sophistication."',
-    '"Jangan pernah berhenti bermimpi, tapi jangan cuma mimpi."'
-  ];
-  let qIdx = 0;
-  setInterval(() => {
-    qIdx = (qIdx + 1) % quotes.length;
-    const qEl = document.getElementById('piskaQuote');
-    if(qEl) {
-      qEl.style.opacity = 0;
-      setTimeout(() => {
-        qEl.textContent = quotes[qIdx];
-        qEl.style.opacity = 1;
-      }, 500);
-    }
-  }, 5000);
-
-  // Quantum Pet Interaction
+  // Simple Interactions
   const petGreetings = [
-    "Quantum Systems: Online. Welcome back, Piska.",
+    "Systems Online. Welcome back, Piska.",
     "Analyzing creative potential... Result: Infinite.",
-    "Synchronizing with the workspace... Done.",
     "Processing new ideas in the cloud...",
     "Vibe Check: High Performance Mode active.",
-    "Remember to rest, Piska. Efficiency requires recovery.",
-    "Scanning for inspiration... Found it in your work."
+    "Scanning for inspiration... Found it!"
   ];
   const petEl = document.querySelector('.piska-pet');
   const speechEl = document.getElementById('petSpeech');
@@ -227,18 +163,25 @@
     });
   }
 
-  // Scroll Reveal Logic
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.animate-on-scroll').forEach(el => {
-    observer.observe(el);
-  });
+  // Quote Rotator
+  const quotes = [
+    '"The best way to predict the future is to create it."',
+    '"Creativity is intelligence having fun."',
+    '"Simplicity is the ultimate sophistication."',
+    '"Innovation distinguishes between a leader and a follower."'
+  ];
+  let qIdx = 0;
+  setInterval(() => {
+    const qEl = document.getElementById('piskaQuote');
+    if(qEl) {
+      qEl.style.opacity = 0;
+      setTimeout(() => {
+        qIdx = (qIdx + 1) % quotes.length;
+        qEl.textContent = quotes[qIdx];
+        qEl.style.opacity = 1;
+      }, 800);
+    }
+  }, 6000);
 </script>
 </body>
 </html>
