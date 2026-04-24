@@ -8,53 +8,67 @@
   <style>
     .game-section {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 100px 24px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 100px 16px 40px;
       background: radial-gradient(circle at center, #0a0a1a 0%, #05050f 100%);
     }
-    .game-container {
-      position: relative;
-      width: 100%;
-      max-width: 600px;
-      aspect-ratio: 4/5;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 0 50px rgba(124,58,237,0.1);
+    .game-layout {
+      display: flex; gap: 32px; width: 100%; max-width: 1000px;
+      flex-wrap: wrap; justify-content: center;
     }
-    #gameCanvas { width: 100%; height: 100%; display: block; cursor: none; }
-    .game-ui {
-      position: absolute; top: 20px; left: 20px; right: 20px;
-      display: flex; justify-content: space-between;
-      pointer-events: none; font-weight: 800; font-size: 18px;
+    .game-board-container {
+      flex: 1; min-width: 300px; max-width: 500px;
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
     }
-    .score-box { color: var(--purple-l); }
-    .highscore-box { color: var(--pink-l); font-size: 14px; opacity: 0.8; }
-    .game-over {
-      position: absolute; inset: 0;
-      background: rgba(5,5,15,0.9);
-      display: none; flex-direction: column;
-      align-items: center; justify-content: center;
-      text-align: center; z-index: 100;
+    .grid {
+      display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;
+      background: rgba(255,255,255,0.05); padding: 6px; border-radius: 12px;
+      width: 100%; aspect-ratio: 1/1;
     }
-    .game-over.show { display: flex; animation: fadeIn 0.3s ease; }
-    .go-title { font-size: 48px; font-weight: 900; margin-bottom: 10px; color: var(--pink-l); }
-    .go-score { font-size: 24px; color: var(--text); margin-bottom: 30px; }
-    .btn-restart {
-      padding: 14px 32px; border-radius: 99px;
-      background: linear-gradient(135deg, var(--purple), var(--pink));
-      color: #fff; font-weight: 700; border: none; cursor: pointer;
+    .cell {
+      background: rgba(255,255,255,0.03); border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .cell.filled { background: var(--purple); box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
+    .cell.preview { background: rgba(124,58,237,0.3); }
+
+    .pieces-container {
+      display: flex; gap: 12px; width: 100%; justify-content: center; height: 100px;
+    }
+    .piece-box {
+      width: 80px; height: 80px; background: rgba(255,255,255,0.05);
+      border: 1px dashed var(--border); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: var(--t);
+    }
+    .piece-box.selected { border: 2px solid var(--purple-l); background: rgba(124,58,237,0.1); }
+    .piece-box:hover { background: rgba(255,255,255,0.08); }
+
+    .leaderboard-panel {
+      width: 300px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px;
+    }
+    .lb-header { font-weight: 800; color: var(--purple-l); font-size: 18px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .lb-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
+    .lb-item { display: flex; justify-content: space-between; font-size: 14px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.02); }
+    .lb-item.top { background: rgba(124,58,237,0.1); border-left: 3px solid var(--purple); }
+
+    /* Name Overlay */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(5,5,15,0.95);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
       transition: var(--t);
     }
-    .btn-restart:hover { transform: scale(1.05); }
-    .game-instructions {
-      margin-top: 24px; color: var(--text3); font-size: 13px; text-align: center;
+    .overlay.hidden { opacity: 0; pointer-events: none; }
+    .name-card {
+      background: var(--bg2); border: 1px solid var(--border-hover); padding: 40px;
+      border-radius: 24px; text-align: center; max-width: 400px; width: 90%;
     }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    @media (max-width: 600px) {
+      .game-layout { flex-direction: column; }
+      .leaderboard-panel { width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -74,176 +88,299 @@
       <li><a href="index.html" class="nav-link">Beranda</a></li>
       <li><a href="game.html" class="nav-link active">Game Chill</a></li>
     </ul>
-    <div class="nav-actions">
-      <a href="index.html" class="btn-secondary">Kembali</a>
-    </div>
+    <div class="nav-actions"><a href="index.html" class="btn-secondary">Kembali</a></div>
   </div>
 </nav>
 
+<div class="overlay" id="nameOverlay">
+  <div class="name-card">
+    <h2 style="margin-bottom:10px">Siapa Namamu?</h2>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:24px">Namamu akan muncul di Leaderboard Divisi Multimedia.</p>
+    <input type="text" id="playerName" class="form-input" placeholder="Masukkan nama..." maxlength="15" style="margin-bottom:16px; text-align:center;">
+    <button class="btn-primary" style="width:100%; justify-content:center" onclick="startSession()">Mulai Bermain</button>
+  </div>
+</div>
+
 <section class="game-section">
   <div class="section-header">
-    <div class="section-badge">Chill Zone</div>
-    <h2 class="section-title">Deadline Dodger</h2>
-    <p class="section-subtitle">Hindari deadline yang jatuh untuk tetap bertahan hidup! Gabutnya anak media.</p>
+    <div class="section-badge">Multimedia Chill</div>
+    <h2 class="section-title">Block Blast</h2>
+    <p class="section-subtitle">Susun balok, hancurkan baris, raih skor tertinggi di divisi!</p>
   </div>
 
-  <div class="game-container">
-    <div class="game-ui">
-      <div class="score-box">SCORE: <span id="scoreVal">0</span></div>
-      <div class="highscore-box">BEST: <span id="highVal">0</span></div>
+  <div class="game-layout">
+    <div class="game-board-container">
+      <div style="display:flex; justify-content:space-between; width:100%; font-weight:800">
+        <div style="color:var(--purple-l)">SCORE: <span id="curScore">0</span></div>
+        <div style="color:var(--text2); font-size:14px">PLAYER: <span id="dispName">-</span></div>
+      </div>
+      <div class="grid" id="gameGrid"></div>
+      <div class="pieces-container" id="piecesRow"></div>
     </div>
-    <div class="game-over" id="gameOver">
-      <div class="go-title">DEADLINED!</div>
-      <div class="go-score">Final Score: <span id="finalScore">0</span></div>
-      <button class="btn-restart" onclick="startGame()">Main Lagi</button>
-    </div>
-    <canvas id="gameCanvas"></canvas>
-  </div>
 
-  <div class="game-instructions">
-    Geser Mouse atau Jari kamu ke kiri & kanan untuk menggerakkan Editor.<br>
-    Jangan biarkan kotak merah (DEADLINE) menyentuhmu!
+    <div class="leaderboard-panel">
+      <div class="lb-header">🏆 Top Multimedia</div>
+      <div class="lb-list" id="lbList">
+        <div style="text-align:center; color:var(--text3); font-size:12px; padding:20px;">Memuat skor...</div>
+      </div>
+    </div>
   </div>
 </section>
 
-<script>
-  const canvas = document.getElementById('gameCanvas');
-  const ctx = canvas.getContext('2d');
-  const scoreEl = document.getElementById('scoreVal');
-  const highEl = document.getElementById('highVal');
-  const goEl = document.getElementById('gameOver');
-  const fsEl = document.getElementById('finalScore');
+<div class="game-over" id="gameOverModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:3000; display:none; align-items:center; justify-content:center;">
+  <div class="name-card">
+    <h2 class="go-title" style="color:var(--pink-l)">Game Over!</h2>
+    <p class="go-score" style="margin:20px 0">Skor Akhir: <span id="finalScoreVal">0</span></p>
+    <button class="btn-restart" onclick="location.reload()">Main Lagi</button>
+  </div>
+</div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDGnmUH1gxYKqhNEyjacmhXO5JnfbK_xD0",
+    authDomain: "peoplepleasuredahsyat.firebaseapp.com",
+    projectId: "peoplepleasuredahsyat",
+    storageBucket: "peoplepleasuredahsyat.firebasestorage.app",
+    messagingSenderId: "1013787661296",
+    appId: "1:1013787661296:web:d86ea3ee22eae70f230335"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // GAME CONSTANTS
+  const GRID_SIZE = 8;
+  const PIECES = [
+    [[1]], [[1,1]], [[1],[1]], [[1,1,1]], [[1],[1],[1]],
+    [[1,1],[1,1]], [[1,1,1],[0,1,0]], [[1,0],[1,1]], [[1,1],[0,1]],
+    [[1,1,1,1]], [[1],[1],[1],[1]]
+  ];
+  const COLORS = ['#7c3aed', '#db2777', '#0891b2', '#f59e0b', '#10b981'];
+
+  let grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
   let score = 0;
-  let highscore = localStorage.getItem('mm_highscore') || 0;
-  highEl.textContent = highscore;
+  let playerName = "";
+  let selectedPieceIndex = null;
+  let currentPieces = [];
 
-  let gameActive = false;
-  let player = { x: 0, y: 0, w: 50, h: 50 };
-  let obstacles = [];
-  let particles = [];
-  let frame = 0;
+  const gridEl = document.getElementById('gameGrid');
+  const piecesEl = document.getElementById('piecesRow');
+  const scoreEl = document.getElementById('curScore');
 
-  function initCanvas() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-    player.y = canvas.height - 80;
-    player.x = canvas.width / 2 - player.w / 2;
+  // Start Session
+  window.startSession = () => {
+    const input = document.getElementById('playerName');
+    if(!input.value.trim()){ alert("Masukkan nama kamu dulu!"); return; }
+    playerName = input.value.trim();
+    document.getElementById('nameOverlay').classList.add('hidden');
+    document.getElementById('dispName').textContent = playerName;
+    initGame();
+  };
+
+  function initGame() {
+    createGrid();
+    spawnPieces();
+    initLeaderboard();
   }
 
-  window.addEventListener('resize', initCanvas);
-  initCanvas();
-
-  // Input
-  window.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    player.x = e.clientX - rect.left - player.w / 2;
-    if(player.x < 0) player.x = 0;
-    if(player.x > canvas.width - player.w) player.x = canvas.width - player.w;
-  });
-
-  window.addEventListener('touchmove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    player.x = e.touches[0].clientX - rect.left - player.w / 2;
-    if(player.x < 0) player.x = 0;
-    if(player.x > canvas.width - player.w) player.x = canvas.width - player.w;
-    e.preventDefault();
-  }, { passive: false });
-
-  function startGame() {
-    score = 0;
-    frame = 0;
-    obstacles = [];
-    gameActive = true;
-    goEl.classList.remove('show');
-    scoreEl.textContent = '0';
-    animate();
+  function createGrid() {
+    gridEl.innerHTML = '';
+    for(let r=0; r<GRID_SIZE; r++) {
+      for(let c=0; c<GRID_SIZE; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        cell.onclick = () => placePiece(r, c);
+        cell.onmouseenter = () => showPreview(r, c);
+        cell.onmouseleave = () => clearPreview();
+        gridEl.appendChild(cell);
+      }
+    }
   }
 
-  function spawnObstacle() {
-    const size = Math.random() * 40 + 30;
-    obstacles.push({
-      x: Math.random() * (canvas.width - size),
-      y: -size,
-      w: size,
-      h: size,
-      v: Math.random() * 3 + 3 + (score / 100),
-      rot: 0,
-      rotV: Math.random() * 0.1 - 0.05
+  function spawnPieces() {
+    currentPieces = [];
+    piecesEl.innerHTML = '';
+    for(let i=0; i<3; i++) {
+      const p = PIECES[Math.floor(Math.random() * PIECES.length)];
+      currentPieces.push(p);
+      const box = document.createElement('div');
+      box.className = 'piece-box';
+      box.innerHTML = renderMiniPiece(p);
+      box.onclick = () => selectPiece(i);
+      piecesEl.appendChild(box);
+    }
+    checkGameOver();
+  }
+
+  function renderMiniPiece(p) {
+    const rows = p.length;
+    const cols = p[0].length;
+    let html = `<div style="display:grid; grid-template-columns:repeat(${cols}, 10px); gap:2px;">`;
+    for(let r=0; r<rows; r++) {
+      for(let c=0; c<cols; c++) {
+        html += `<div style="width:10px; height:10px; border-radius:2px; background:${p[r][c]?'var(--purple-l)':'transparent'}"></div>`;
+      }
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  function selectPiece(idx) {
+    if(currentPieces[idx] === null) return;
+    selectedPieceIndex = idx;
+    document.querySelectorAll('.piece-box').forEach((b, i) => {
+      b.classList.toggle('selected', i === idx);
     });
   }
 
-  function animate() {
-    if(!gameActive) return;
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-    frame++;
-
-    if(frame % 40 === 0) spawnObstacle();
-
-    // Draw Player
-    ctx.fillStyle = '#7c3aed';
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = '#7c3aed';
-    ctx.beginPath();
-    ctx.roundRect(player.x, player.y, player.w, player.h, 12);
-    ctx.fill();
-    // Icon (simple camera shape)
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(player.x + 10, player.y + 15, 30, 20);
-    ctx.beginPath(); ctx.arc(player.x + 25, player.y + 25, 6, 0, Math.PI*2); ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // Obstacles
-    for(let i = obstacles.length - 1; i >= 0; i--) {
-      let o = obstacles[i];
-      o.y += o.v;
-      o.rot += o.rotV;
-
-      ctx.save();
-      ctx.translate(o.x + o.w/2, o.y + o.h/2);
-      ctx.rotate(o.rot);
-      ctx.fillStyle = '#db2777';
-      ctx.shadowBlur = 10; ctx.shadowColor = '#db2777';
-      ctx.beginPath(); ctx.roundRect(-o.w/2, -o.h/2, o.w, o.h, 8); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 10px Outfit';
-      ctx.textAlign = 'center';
-      ctx.fillText('DEADLINE', 0, 4);
-      ctx.restore();
-
-      // Collision
-      if(
-        player.x < o.x + o.w &&
-        player.x + player.w > o.x &&
-        player.y < o.y + o.h &&
-        player.y + player.h > o.y
-      ) {
-        endGame();
-      }
-
-      if(o.y > canvas.height) {
-        obstacles.splice(i, 1);
-        score += 10;
-        scoreEl.textContent = score;
-      }
-    }
-
-    requestAnimationFrame(animate);
-  }
-
-  function endGame() {
-    gameActive = false;
-    goEl.classList.add('show');
-    fsEl.textContent = score;
-    if(score > highscore) {
-      highscore = score;
-      localStorage.setItem('mm_highscore', highscore);
-      highEl.textContent = highscore;
+  function showPreview(r, c) {
+    if(selectedPieceIndex === null) return;
+    const p = currentPieces[selectedPieceIndex];
+    if(canPlace(p, r, c)) {
+      applyToCells(p, r, c, 'preview', true);
     }
   }
 
-  startGame();
+  function clearPreview() {
+    document.querySelectorAll('.cell.preview').forEach(c => c.classList.remove('preview'));
+  }
+
+  function canPlace(p, r, c) {
+    for(let pr=0; pr<p.length; pr++) {
+      for(let pc=0; pc<p[0].length; pc++) {
+        if(p[pr][pc]) {
+          const targetR = r + pr;
+          const targetC = c + pc;
+          if(targetR >= GRID_SIZE || targetC >= GRID_SIZE || grid[targetR][targetC]) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function placePiece(r, c) {
+    if(selectedPieceIndex === null) return;
+    const p = currentPieces[selectedPieceIndex];
+    if(canPlace(p, r, c)) {
+      applyToCells(p, r, c, 'filled', true);
+      // Update logical grid
+      for(let pr=0; pr<p.length; pr++) {
+        for(let pc=0; pc<p[0].length; pc++) {
+          if(p[pr][pc]) grid[r+pr][c+pc] = 1;
+        }
+      }
+      
+      score += (p.flat().filter(x=>x).length * 10);
+      currentPieces[selectedPieceIndex] = null;
+      document.querySelectorAll('.piece-box')[selectedPieceIndex].style.visibility = 'hidden';
+      selectedPieceIndex = null;
+      
+      checkLines();
+      
+      if(currentPieces.every(x => x === null)) spawnPieces();
+      else checkGameOver();
+      
+      scoreEl.textContent = score;
+    }
+  }
+
+  function applyToCells(p, r, c, className, add) {
+    for(let pr=0; pr<p.length; pr++) {
+      for(let pc=0; pc<p[0].length; pc++) {
+        if(p[pr][pc]) {
+          const el = document.querySelector(`.cell[data-r="${r+pr}"][data-c="${c+pc}"]`);
+          if(el) {
+            if(add) el.classList.add(className);
+            else el.classList.remove(className);
+          }
+        }
+      }
+    }
+  }
+
+  function checkLines() {
+    let rowsToClear = [];
+    let colsToClear = [];
+
+    // Rows
+    for(let r=0; r<GRID_SIZE; r++) {
+      if(grid[r].every(x => x === 1)) rowsToClear.push(r);
+    }
+    // Cols
+    for(let c=0; c<GRID_SIZE; c++) {
+      let full = true;
+      for(let r=0; r<GRID_SIZE; r++) { if(!grid[r][c]) full = false; }
+      if(full) colsToClear.push(c);
+    }
+
+    if(rowsToClear.length > 0 || colsToClear.length > 0) {
+      rowsToClear.forEach(r => {
+        grid[r] = Array(GRID_SIZE).fill(0);
+        for(let c=0; c<GRID_SIZE; c++) document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).classList.remove('filled');
+      });
+      colsToClear.forEach(c => {
+        for(let r=0; r<GRID_SIZE; r++) {
+          grid[r][c] = 0;
+          document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).classList.remove('filled');
+        }
+      });
+      score += (rowsToClear.length + colsToClear.length) * 100;
+    }
+  }
+
+  function checkGameOver() {
+    const remaining = currentPieces.filter(p => p !== null);
+    if(remaining.length === 0) return;
+    
+    let possible = false;
+    for(let p of remaining) {
+      for(let r=0; r<GRID_SIZE; r++) {
+        for(let c=0; c<GRID_SIZE; c++) {
+          if(canPlace(p, r, c)) { possible = true; break; }
+        }
+        if(possible) break;
+      }
+      if(possible) break;
+    }
+
+    if(!possible) {
+      saveScore();
+      document.getElementById('finalScoreVal').textContent = score;
+      document.getElementById('gameOverModal').style.display = 'flex';
+    }
+  }
+
+  async function saveScore() {
+    if(score === 0) return;
+    try {
+      await addDoc(collection(db, "leaderboard"), {
+        playerName,
+        score,
+        timestamp: new Date().toISOString()
+      });
+    } catch(e) { console.error(e); }
+  }
+
+  function initLeaderboard() {
+    const q = query(collection(db, "leaderboard"), orderBy("score", "desc"), limit(10));
+    onSnapshot(q, snap => {
+      const list = document.getElementById('lbList');
+      list.innerHTML = snap.docs.map((d, i) => {
+        const data = d.data();
+        return `
+        <div class="lb-item ${i<3?'top':''}">
+          <span><strong>#${i+1}</strong> ${data.playerName}</span>
+          <span>${data.score}</span>
+        </div>`;
+      }).join('') || '<div style="text-align:center;color:var(--text3);font-size:12px;padding:20px;">Belum ada skor.</div>';
+    });
+  }
+
 </script>
-
 </body>
 </html>
