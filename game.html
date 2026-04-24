@@ -98,8 +98,8 @@
       box-shadow: inset 0 0 15px rgba(255,255,255,0.3), 0 8px 16px rgba(0,0,0,0.4); 
     }
     .cell.preview { 
-      opacity: 0.4; background-color: var(--cell-color) !important; 
-      transform: scale(0.9); border: 2px dashed rgba(255,255,255,0.6);
+      opacity: 0.5; background-color: var(--cell-color) !important; 
+      transform: scale(0.92); border: 2.5px dashed rgba(255,255,255,0.7);
     }
 
     .pieces-container {
@@ -169,7 +169,7 @@
       100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
     }
 
-    #drag-ghost { position: fixed; pointer-events: none; z-index: 5000; display: none; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6)); transition: transform 0.1s; }
+    #drag-ghost { position: fixed; pointer-events: none; z-index: 5000; display: none; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6)); }
 
     @media (max-width: 900px) {
       .game-layout { flex-direction: column; align-items: center; gap: 24px; padding: 0 10px; }
@@ -355,6 +355,21 @@
   }
   animateParticles();
 
+  // --- AUDIO RESTORED & IMPROVED ---
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playSound(freq, type = 'sine', vol = 0.1, duration = 0.2, ramp = true) {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    if(ramp) osc.frequency.exponentialRampToValueAtTime(freq / 2, audioCtx.currentTime + duration);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  }
+
   // --- GAME LOGIC ---
   const GRID_SIZE = 6;
   const PIECE_TIERS = {
@@ -369,7 +384,7 @@
     ],
     hard: [
       {p:[[1,1,1],[0,0,1]],c:'#dc2626'}, {p:[[1,1,1],[0,1,0],[0,1,0]],c:'#d97706'},
-      {p:[[1,1,1,1]],c:'#10b981'}, {p:[[1,1,1],[1,1,1],[1,1,1]],c:'#ffffff'} // THE 3x3 BLOCK
+      {p:[[1,1,1,1]],c:'#10b981'}, {p:[[1,1,1],[1,1,1],[1,1,1]],c:'#ffffff'}
     ]
   };
 
@@ -389,6 +404,7 @@
     playerName = input.value.trim();
     document.getElementById('nameOverlay').classList.add('hidden');
     document.getElementById('dispName').textContent = playerName;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     initGame();
   };
 
@@ -407,13 +423,7 @@
   function spawnPieces() {
     currentPieces = [];
     document.getElementById('piecesRow').innerHTML = '';
-    
-    // PROGRESSIVE DIFFICULTY
-    let tier;
-    if(score < 800) tier = 'easy';
-    else if(score < 2500) tier = Math.random() > 0.4 ? 'medium' : 'easy';
-    else tier = Math.random() > 0.3 ? 'hard' : 'medium';
-    
+    let tier = score < 800 ? 'easy' : (score < 2500 ? 'medium' : 'hard');
     const pool = PIECE_TIERS[tier];
     for(let i=0; i<3; i++) {
       const pData = JSON.parse(JSON.stringify(pool[Math.floor(Math.random() * pool.length)]));
@@ -440,7 +450,8 @@
 
   function startDrag(e, idx) {
     isDragging = true; selectedIdx = idx;
-    ghost.innerHTML = renderMiniPiece(currentPieces[idx].p, currentPieces[idx].c, 34);
+    const p = currentPieces[idx].p;
+    ghost.innerHTML = renderMiniPiece(p, currentPieces[idx].c, 34);
     ghost.style.display = 'block';
     document.getElementById(`piece-box-${idx}`).classList.add('dragging');
     updateDragPos(e);
@@ -451,48 +462,54 @@
     const x = e.touches ? e.touches[0].clientX : e.clientX;
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     
-    // ENHANCED ACCURACY: Floating offset for better visibility
-    const offsetY = e.touches ? -100 : -50;
-    ghost.style.left = (x - ghost.offsetWidth/2) + 'px';
-    ghost.style.top = (y + offsetY - ghost.offsetHeight/2) + 'px';
+    // GHOST VISUAL POSITION (Always centered on cursor/finger)
+    const visualOffsetY = e.touches ? -110 : -60;
+    ghost.style.left = (x - ghost.offsetWidth / 2) + 'px';
+    ghost.style.top = (y + visualOffsetY - ghost.offsetHeight / 2) + 'px';
     
     clearPreviews();
     
-    // ENHANCED ACCURACY: Detect based on CENTER of the piece
-    const centerX = x;
-    const centerY = y + offsetY;
-    const cell = calculateCellFromPos(centerX, centerY);
-    
-    if(cell && canPlace(currentPieces[selectedIdx].p, cell.r, cell.c)) {
-      applyPreview(currentPieces[selectedIdx].p, cell.r, cell.c, currentPieces[selectedIdx].c);
-    }
-  }
-
-  function calculateCellFromPos(x, y) {
+    // ACCURACY FIX: Find top-left cell based on where the CENTER of the ghost is
     const rect = gridEl.getBoundingClientRect();
-    if(x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return null;
+    const cellW = rect.width / GRID_SIZE;
+    const cellH = rect.height / GRID_SIZE;
     
-    // MATHEMATICAL CENTER SNAPPING
-    const c = Math.floor((x - rect.left) / (rect.width/GRID_SIZE));
-    const r = Math.floor((y - rect.top) / (rect.height/GRID_SIZE));
+    const ghostCenterX = x;
+    const ghostCenterY = y + visualOffsetY;
     
-    // Refine: center the piece based on its dimensions
-    const piece = currentPieces[selectedIdx].p;
-    const refinedR = r - Math.floor(piece.length / 2);
-    const refinedC = c - Math.floor(piece[0].length / 2);
+    const p = currentPieces[selectedIdx].p;
+    const prs = p.length;
+    const pcs = p[0].length;
     
-    return {r: refinedR, c: refinedC};
+    // Calculate the grid cell coordinates for the top-left corner of the piece
+    // so that the piece's center aligns with the cursor
+    const targetC = Math.round((ghostCenterX - rect.left - (pcs * cellW) / 2) / cellW);
+    const targetR = Math.round((ghostCenterY - rect.top - (prs * cellH) / 2) / cellH);
+    
+    if(targetR >= -prs && targetR < GRID_SIZE && targetC >= -pcs && targetC < GRID_SIZE) {
+      if(canPlace(p, targetR, targetC)) {
+        applyPreview(p, targetR, targetC, currentPieces[selectedIdx].c);
+      }
+    }
   }
 
   function endDrag(e) {
     if(!isDragging) return;
     const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
     const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-    const offsetY = e.changedTouches ? -100 : -50;
+    const visualOffsetY = e.changedTouches ? -110 : -60;
     
-    const cell = calculateCellFromPos(x, y + offsetY);
-    if(cell && canPlace(currentPieces[selectedIdx].p, cell.r, cell.c)) {
-      placePiece(currentPieces[selectedIdx], cell.r, cell.c);
+    const rect = gridEl.getBoundingClientRect();
+    const cellW = rect.width / GRID_SIZE;
+    const cellH = rect.height / GRID_SIZE;
+    const p = currentPieces[selectedIdx].p;
+    
+    const targetC = Math.round((x - rect.left - (p[0].length * cellW) / 2) / cellW);
+    const targetR = Math.round((y + visualOffsetY - rect.top - (p.length * cellH) / 2) / cellH);
+    
+    if(canPlace(p, targetR, targetC)) {
+      placePiece(currentPieces[selectedIdx], targetR, targetC);
+      playSound(200, 'sine', 0.15, 0.15, false); // Thud sound
     } else {
       streak = 0; endFever();
     }
@@ -545,14 +562,11 @@
         }
       }
     }
-    // HARDER SCORING: 5 points per cell
     score += (p.flat().filter(x=>x).length * (feverMode ? 10 : 5));
     currentPieces[selectedIdx] = null;
     document.getElementById(`piece-box-${selectedIdx}`).style.visibility = 'hidden';
-    
     checkLines();
     updateUI();
-    
     if(currentPieces.every(x => x === null)) spawnPieces();
     else checkGameOver();
   }
@@ -564,19 +578,15 @@
       let f = true; for(let r=0; r<GRID_SIZE; r++) if(!grid[r][c]) f=false;
       if(f) cols.push(c);
     }
-    
     const totalLines = rows.length + cols.length;
     if(totalLines > 0) {
       streak++;
-      if(streak >= 3) startFever(); // FEVER NOW AT 3+ STREAK
-      
+      if(streak >= 3) startFever();
+      playSound(440 + (streak * 110), 'triangle', 0.1, 0.3, false); // Pop sound
       gridEl.classList.add('screen-shake');
       setTimeout(()=>gridEl.classList.remove('screen-shake'),300);
-      
       rows.forEach(r => { grid[r] = Array(GRID_SIZE).fill(0); for(let c=0; c<GRID_SIZE; c++) clearCell(r, c); });
       cols.forEach(c => { for(let r=0; r<GRID_SIZE; r++) { grid[r][c]=0; clearCell(r, c); } });
-      
-      // HARDER SCORING: Linear bonus
       const bonus = (totalLines * 100) * (feverMode ? 2 : 1);
       score += bonus;
       showCombo(bonus);
@@ -603,6 +613,7 @@
   function startFever() {
     if(feverMode) return;
     feverMode = true;
+    playSound(880, 'sine', 0.1, 0.6); // Rising fever sound
     document.getElementById('gameArea').classList.add('fever-active');
     document.getElementById('multiplier').style.display = 'inline';
     const alert = document.getElementById('feverAlert');
