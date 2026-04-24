@@ -220,18 +220,36 @@ function renderTasks() {
       </div>`;
     }).join('');
 
+    // Check for linked event
+    let eventContext = '';
+    if(t.eventId) {
+      const ev = events.find(e => e.id === t.eventId);
+      if(ev) {
+        eventContext = `<div class="task-event-link">📍 ${ev.title}</div>`;
+      }
+    }
+
+    // Assignees summary
+    const assignedNames = (t.assignedTo || []).map(id => {
+      const m = members.find(x => x.id === id);
+      return m ? m.name : 'Unknown';
+    }).join(', ');
+
     return `
     <div class="task-card animate-on-scroll" style="--i:${i}" onclick="showTaskDetail('${t.id}')">
       <div class="task-header">
         <div class="task-title">${t.title}</div>
         <span class="task-status status-${t.status}">${STATUS_LABEL[t.status]||t.status}</span>
       </div>
+      ${eventContext}
       <p class="task-desc">${t.description ? t.description.substring(0,80)+(t.description.length>80?'...':'') : 'Tidak ada deskripsi.'}</p>
       <div class="task-footer" style="flex-direction:column; align-items:flex-start; gap:8px;">
         <div style="display:flex; flex-wrap:wrap; gap:8px;">${subdivBadges}</div>
-        <div class="task-due">📅 ${dueLabel}</div>
+        <div class="task-due">📅 ${t.dueDate || 'No Deadline'}</div>
       </div>
-      <div class="task-assignees">${assignees}</div>
+      <div class="task-assignees" style="font-size:11px; color:var(--text3); border-top:1px solid rgba(255,255,255,0.05); padding-top:8px; width:100%;">
+        👥 ${assignedNames || 'Belum ditugaskan'}
+      </div>
     </div>`;
   }).join('');
   observeAnimations();
