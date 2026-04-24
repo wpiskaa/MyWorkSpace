@@ -11,63 +11,82 @@
       display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
       padding: 100px 16px 40px;
       background: radial-gradient(circle at center, #0a0a1a 0%, #05050f 100%);
+      touch-action: none;
     }
     .game-layout {
       display: flex; gap: 32px; width: 100%; max-width: 1000px;
       flex-wrap: wrap; justify-content: center;
     }
     .game-board-container {
-      flex: 1; min-width: 300px; max-width: 500px;
+      flex: 1; min-width: 300px; max-width: 450px;
       display: flex; flex-direction: column; align-items: center; gap: 20px;
+      position: relative;
     }
     .grid {
       display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;
-      background: rgba(255,255,255,0.05); padding: 6px; border-radius: 12px;
-      width: 100%; aspect-ratio: 1/1;
+      background: rgba(255,255,255,0.05); padding: 8px; border-radius: 16px;
+      width: 100%; aspect-ratio: 1/1; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      position: relative;
     }
     .cell {
-      background: rgba(255,255,255,0.03); border-radius: 4px;
-      transition: all 0.2s;
+      background: rgba(255,255,255,0.03); border-radius: 6px;
+      transition: background 0.2s, transform 0.2s;
+      position: relative;
     }
-    .cell.filled { background: var(--purple); box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
-    .cell.preview { background: rgba(124,58,237,0.3); }
+    .cell.filled { transform: scale(1); }
+    .cell.preview { opacity: 0.4; }
+    .cell.clearing { transform: scale(0); opacity: 0; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
     .pieces-container {
-      display: flex; gap: 12px; width: 100%; justify-content: center; height: 100px;
+      display: flex; gap: 15px; width: 100%; justify-content: center; height: 120px;
+      margin-top: 20px;
     }
     .piece-box {
-      width: 80px; height: 80px; background: rgba(255,255,255,0.05);
-      border: 1px dashed var(--border); border-radius: 8px;
+      width: 100px; height: 100px; background: rgba(255,255,255,0.05);
+      border: 1px dashed var(--border); border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: var(--t);
+      cursor: grab; transition: transform 0.2s;
+      user-select: none; -webkit-user-drag: none;
     }
-    .piece-box.selected { border: 2px solid var(--purple-l); background: rgba(124,58,237,0.1); }
-    .piece-box:hover { background: rgba(255,255,255,0.08); }
+    .piece-box:active { cursor: grabbing; }
+    .piece-box.dragging { opacity: 0; }
+
+    /* Dragging Ghost */
+    #drag-ghost {
+      position: fixed; pointer-events: none; z-index: 5000;
+      display: none; transform: scale(1.1);
+    }
 
     .leaderboard-panel {
       width: 300px; background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px;
+      border-radius: 24px; padding: 24px; display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-    .lb-header { font-weight: 800; color: var(--purple-l); font-size: 18px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .lb-header { font-weight: 800; color: var(--purple-l); font-size: 18px; border-bottom: 1px solid var(--border); padding-bottom: 10px; display:flex; align-items:center; gap:8px;}
     .lb-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
-    .lb-item { display: flex; justify-content: space-between; font-size: 14px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.02); }
-    .lb-item.top { background: rgba(124,58,237,0.1); border-left: 3px solid var(--purple); }
+    .lb-item { display: flex; justify-content: space-between; font-size: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+    .lb-item.top { background: linear-gradient(90deg, rgba(124,58,237,0.15), transparent); border-color: rgba(124,58,237,0.2); }
 
-    /* Name Overlay */
     .overlay {
-      position: fixed; inset: 0; background: rgba(5,5,15,0.95);
-      z-index: 2000; display: flex; align-items: center; justify-content: center;
-      transition: var(--t);
+      position: fixed; inset: 0; background: rgba(5,5,15,0.98);
+      z-index: 3000; display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(10px);
     }
     .overlay.hidden { opacity: 0; pointer-events: none; }
     .name-card {
-      background: var(--bg2); border: 1px solid var(--border-hover); padding: 40px;
-      border-radius: 24px; text-align: center; max-width: 400px; width: 90%;
+      background: var(--bg2); border: 1px solid var(--border-hover); padding: 48px;
+      border-radius: 32px; text-align: center; max-width: 440px; width: 90%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
     }
 
-    @media (max-width: 600px) {
-      .game-layout { flex-direction: column; }
-      .leaderboard-panel { width: 100%; }
+    .combo-text {
+      position: absolute; color: var(--pink-l); font-weight: 900; font-size: 32px;
+      pointer-events: none; animation: comboPop 1s ease-out forwards;
+    }
+    @keyframes comboPop {
+      0% { transform: scale(0.5); opacity: 0; }
+      20% { transform: scale(1.2); opacity: 1; }
+      100% { transform: translateY(-50px) scale(1); opacity: 0; }
     }
   </style>
 </head>
@@ -79,10 +98,7 @@
       <div class="brand-icon">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
       </div>
-      <div class="brand-text">
-        <span class="brand-name">Multimedia</span>
-        <span class="brand-org">ITSpecta</span>
-      </div>
+      <div class="brand-text"><span class="brand-name">Multimedia</span><span class="brand-org">ITSpecta</span></div>
     </div>
     <ul class="nav-links">
       <li><a href="index.html" class="nav-link">Beranda</a></li>
@@ -94,44 +110,44 @@
 
 <div class="overlay" id="nameOverlay">
   <div class="name-card">
-    <h2 style="margin-bottom:10px">Siapa Namamu?</h2>
-    <p style="color:var(--text2); font-size:14px; margin-bottom:24px">Namamu akan muncul di Leaderboard Divisi Multimedia.</p>
-    <input type="text" id="playerName" class="form-input" placeholder="Masukkan nama..." maxlength="15" style="margin-bottom:16px; text-align:center;">
-    <button class="btn-primary" style="width:100%; justify-content:center" onclick="startSession()">Mulai Bermain</button>
+    <div class="section-badge" style="margin-bottom:20px">Multimedia Chill</div>
+    <h2 style="margin-bottom:10px">Masuk Chill Zone</h2>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:32px">Siap bersaing di leaderboard divisi?</p>
+    <input type="text" id="playerName" class="form-input" placeholder="Nama Kamu..." maxlength="12" style="margin-bottom:20px; text-align:center; font-size:18px; font-weight:700;">
+    <button class="btn-primary" style="width:100%; justify-content:center; padding:16px" onclick="startSession()">Main Sekarang</button>
   </div>
 </div>
 
 <section class="game-section">
   <div class="section-header">
-    <div class="section-badge">Multimedia Chill</div>
-    <h2 class="section-title">Block Blast</h2>
-    <p class="section-subtitle">Susun balok, hancurkan baris, raih skor tertinggi di divisi!</p>
+    <div class="section-badge">Block Blast V2</div>
+    <h2 class="section-title">Multimedia Puzzle</h2>
   </div>
 
   <div class="game-layout">
     <div class="game-board-container">
-      <div style="display:flex; justify-content:space-between; width:100%; font-weight:800">
-        <div style="color:var(--purple-l)">SCORE: <span id="curScore">0</span></div>
-        <div style="color:var(--text2); font-size:14px">PLAYER: <span id="dispName">-</span></div>
+      <div style="display:flex; justify-content:space-between; width:100%; font-weight:800; background:rgba(255,255,255,0.05); padding:12px 20px; border-radius:12px;">
+        <div style="color:var(--purple-l)">🏆 <span id="curScore">0</span></div>
+        <div style="color:var(--text3); font-size:14px">👤 <span id="dispName">-</span></div>
       </div>
       <div class="grid" id="gameGrid"></div>
       <div class="pieces-container" id="piecesRow"></div>
     </div>
 
     <div class="leaderboard-panel">
-      <div class="lb-header">🏆 Top Multimedia</div>
-      <div class="lb-list" id="lbList">
-        <div style="text-align:center; color:var(--text3); font-size:12px; padding:20px;">Memuat skor...</div>
-      </div>
+      <div class="lb-header">✨ Peringkat Divisi</div>
+      <div class="lb-list" id="lbList"></div>
     </div>
   </div>
 </section>
 
-<div class="game-over" id="gameOverModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:3000; display:none; align-items:center; justify-content:center;">
+<div id="drag-ghost"></div>
+
+<div class="game-over" id="gameOverModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
   <div class="name-card">
-    <h2 class="go-title" style="color:var(--pink-l)">Game Over!</h2>
-    <p class="go-score" style="margin:20px 0">Skor Akhir: <span id="finalScoreVal">0</span></p>
-    <button class="btn-restart" onclick="location.reload()">Main Lagi</button>
+    <h2 class="go-title" style="color:var(--pink-l); font-size:40px;">GAME OVER</h2>
+    <p class="go-score" style="margin:24px 0; font-size:24px;">Skor Akhir: <strong id="finalScoreVal">0</strong></p>
+    <button class="btn-restart" onclick="location.reload()" style="width:100%">Coba Lagi</button>
   </div>
 </div>
 
@@ -151,32 +167,56 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // GAME CONSTANTS
+  // --- AUDIO SYNTHESIZER ---
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playSound(type) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    
+    if(type === 'place') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+    } else if(type === 'clear') {
+      osc.type = 'triangle'; osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    }
+  }
+
+  // --- GAME LOGIC ---
   const GRID_SIZE = 8;
   const PIECES = [
-    [[1]], [[1,1]], [[1],[1]], [[1,1,1]], [[1],[1],[1]],
-    [[1,1],[1,1]], [[1,1,1],[0,1,0]], [[1,0],[1,1]], [[1,1],[0,1]],
-    [[1,1,1,1]], [[1],[1],[1],[1]]
+    { p: [[1]], c: '#7c3aed' }, { p: [[1,1]], c: '#db2777' }, { p: [[1],[1]], c: '#db2777' },
+    { p: [[1,1,1]], c: '#0891b2' }, { p: [[1],[1],[1]], c: '#0891b2' },
+    { p: [[1,1],[1,1]], c: '#f59e0b' }, { p: [[1,1,1],[0,1,0]], c: '#10b981' },
+    { p: [[1,0],[1,1]], c: '#8b5cf6' }, { p: [[1,1,0],[0,1,1]], c: '#ef4444' },
+    { p: [[1,1,1,1]], c: '#3b82f6' }
   ];
-  const COLORS = ['#7c3aed', '#db2777', '#0891b2', '#f59e0b', '#10b981'];
 
   let grid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
-  let score = 0;
-  let playerName = "";
-  let selectedPieceIndex = null;
-  let currentPieces = [];
+  let gridColors = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(''));
+  let score = 0, playerName = "", currentPieces = [], selectedIdx = null;
+  let isDragging = false, dragX=0, dragY=0;
 
   const gridEl = document.getElementById('gameGrid');
   const piecesEl = document.getElementById('piecesRow');
   const scoreEl = document.getElementById('curScore');
+  const ghost = document.getElementById('drag-ghost');
 
-  // Start Session
   window.startSession = () => {
     const input = document.getElementById('playerName');
-    if(!input.value.trim()){ alert("Masukkan nama kamu dulu!"); return; }
+    if(!input.value.trim()){ alert("Masukkan namamu!"); return; }
     playerName = input.value.trim();
     document.getElementById('nameOverlay').classList.add('hidden');
     document.getElementById('dispName').textContent = playerName;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     initGame();
   };
 
@@ -192,11 +232,7 @@
       for(let c=0; c<GRID_SIZE; c++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
-        cell.dataset.r = r;
-        cell.dataset.c = c;
-        cell.onclick = () => placePiece(r, c);
-        cell.onmouseenter = () => showPreview(r, c);
-        cell.onmouseleave = () => clearPreview();
+        cell.id = `cell-${r}-${c}`;
         gridEl.appendChild(cell);
       }
     }
@@ -206,148 +242,199 @@
     currentPieces = [];
     piecesEl.innerHTML = '';
     for(let i=0; i<3; i++) {
-      const p = PIECES[Math.floor(Math.random() * PIECES.length)];
-      currentPieces.push(p);
+      const pData = PIECES[Math.floor(Math.random() * PIECES.length)];
+      currentPieces.push(pData);
       const box = document.createElement('div');
       box.className = 'piece-box';
-      box.innerHTML = renderMiniPiece(p);
-      box.onclick = () => selectPiece(i);
+      box.id = `piece-box-${i}`;
+      box.innerHTML = renderMiniPiece(pData.p, pData.c);
+      
+      // Event Listeners for Dragging
+      box.addEventListener('mousedown', (e) => startDrag(e, i));
+      box.addEventListener('touchstart', (e) => startDrag(e, i), {passive:false});
       piecesEl.appendChild(box);
     }
     checkGameOver();
   }
 
-  function renderMiniPiece(p) {
-    const rows = p.length;
-    const cols = p[0].length;
-    let html = `<div style="display:grid; grid-template-columns:repeat(${cols}, 10px); gap:2px;">`;
+  function renderMiniPiece(p, color) {
+    const rows = p.length, cols = p[0].length;
+    let html = `<div style="display:grid; grid-template-columns:repeat(${cols}, 14px); gap:3px;">`;
     for(let r=0; r<rows; r++) {
       for(let c=0; c<cols; c++) {
-        html += `<div style="width:10px; height:10px; border-radius:2px; background:${p[r][c]?'var(--purple-l)':'transparent'}"></div>`;
+        html += `<div style="width:14px; height:14px; border-radius:3px; background:${p[r][c]?color:'transparent'}; box-shadow:${p[r][c]?'inset 0 0 5px rgba(255,255,255,0.3)':''}"></div>`;
       }
     }
-    html += `</div>`;
-    return html;
+    return html + '</div>';
   }
 
-  function selectPiece(idx) {
+  // --- DRAG SYSTEM ---
+  function startDrag(e, idx) {
     if(currentPieces[idx] === null) return;
-    selectedPieceIndex = idx;
-    document.querySelectorAll('.piece-box').forEach((b, i) => {
-      b.classList.toggle('selected', i === idx);
-    });
+    isDragging = true; selectedIdx = idx;
+    const pData = currentPieces[idx];
+    ghost.innerHTML = renderMiniPiece(pData.p, pData.c);
+    ghost.style.display = 'block';
+    document.getElementById(`piece-box-${idx}`).classList.add('dragging');
+    updateDragPos(e);
+    if(e.type === 'touchstart') e.preventDefault();
   }
 
-  function showPreview(r, c) {
-    if(selectedPieceIndex === null) return;
-    const p = currentPieces[selectedPieceIndex];
-    if(canPlace(p, r, c)) {
-      applyToCells(p, r, c, 'preview', true);
+  function updateDragPos(e) {
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    ghost.style.left = (x - 50) + 'px';
+    ghost.style.top = (y - 50) + 'px';
+    
+    // Preview logic
+    clearPreviews();
+    const cell = getCellAtPos(x, y);
+    if(cell) {
+      const {r, c} = cell;
+      const pData = currentPieces[selectedIdx];
+      if(canPlace(pData.p, r, c)) applyPreview(pData.p, r, c, pData.c);
     }
   }
 
-  function clearPreview() {
-    document.querySelectorAll('.cell.preview').forEach(c => c.classList.remove('preview'));
+  window.addEventListener('mousemove', (e) => { if(isDragging) updateDragPos(e); });
+  window.addEventListener('touchmove', (e) => { if(isDragging) updateDragPos(e); }, {passive:false});
+
+  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('touchend', endDrag);
+
+  function endDrag(e) {
+    if(!isDragging) return;
+    const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const cell = getCellAtPos(x, y);
+    
+    if(cell) {
+      const {r, c} = cell;
+      const pData = currentPieces[selectedIdx];
+      if(canPlace(pData.p, r, c)) {
+        placePiece(pData, r, c);
+        playSound('place');
+      }
+    }
+    
+    isDragging = false;
+    ghost.style.display = 'none';
+    document.querySelectorAll('.piece-box').forEach(b => b.classList.remove('dragging'));
+    clearPreviews();
+  }
+
+  function getCellAtPos(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if(el && el.classList.contains('cell')) {
+      const parts = el.id.split('-');
+      return { r: parseInt(parts[1]), c: parseInt(parts[2]) };
+    }
+    return null;
   }
 
   function canPlace(p, r, c) {
     for(let pr=0; pr<p.length; pr++) {
       for(let pc=0; pc<p[0].length; pc++) {
         if(p[pr][pc]) {
-          const targetR = r + pr;
-          const targetC = c + pc;
-          if(targetR >= GRID_SIZE || targetC >= GRID_SIZE || grid[targetR][targetC]) return false;
+          const tr = r + pr, tc = c + pc;
+          if(tr >= GRID_SIZE || tc >= GRID_SIZE || grid[tr][tc]) return false;
         }
       }
     }
     return true;
   }
 
-  function placePiece(r, c) {
-    if(selectedPieceIndex === null) return;
-    const p = currentPieces[selectedPieceIndex];
-    if(canPlace(p, r, c)) {
-      applyToCells(p, r, c, 'filled', true);
-      // Update logical grid
-      for(let pr=0; pr<p.length; pr++) {
-        for(let pc=0; pc<p[0].length; pc++) {
-          if(p[pr][pc]) grid[r+pr][c+pc] = 1;
-        }
-      }
-      
-      score += (p.flat().filter(x=>x).length * 10);
-      currentPieces[selectedPieceIndex] = null;
-      document.querySelectorAll('.piece-box')[selectedPieceIndex].style.visibility = 'hidden';
-      selectedPieceIndex = null;
-      
-      checkLines();
-      
-      if(currentPieces.every(x => x === null)) spawnPieces();
-      else checkGameOver();
-      
-      scoreEl.textContent = score;
-    }
-  }
-
-  function applyToCells(p, r, c, className, add) {
+  function applyPreview(p, r, c, color) {
     for(let pr=0; pr<p.length; pr++) {
       for(let pc=0; pc<p[0].length; pc++) {
         if(p[pr][pc]) {
-          const el = document.querySelector(`.cell[data-r="${r+pr}"][data-c="${c+pc}"]`);
-          if(el) {
-            if(add) el.classList.add(className);
-            else el.classList.remove(className);
-          }
+          const el = document.getElementById(`cell-${r+pr}-${c+pc}`);
+          if(el) { el.style.background = color; el.classList.add('preview'); }
         }
       }
     }
   }
 
-  function checkLines() {
-    let rowsToClear = [];
-    let colsToClear = [];
+  function clearPreviews() {
+    document.querySelectorAll('.cell.preview').forEach(el => {
+      el.style.background = '';
+      el.classList.remove('preview');
+    });
+  }
 
-    // Rows
-    for(let r=0; r<GRID_SIZE; r++) {
-      if(grid[r].every(x => x === 1)) rowsToClear.push(r);
-    }
-    // Cols
-    for(let c=0; c<GRID_SIZE; c++) {
-      let full = true;
-      for(let r=0; r<GRID_SIZE; r++) { if(!grid[r][c]) full = false; }
-      if(full) colsToClear.push(c);
-    }
-
-    if(rowsToClear.length > 0 || colsToClear.length > 0) {
-      rowsToClear.forEach(r => {
-        grid[r] = Array(GRID_SIZE).fill(0);
-        for(let c=0; c<GRID_SIZE; c++) document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).classList.remove('filled');
-      });
-      colsToClear.forEach(c => {
-        for(let r=0; r<GRID_SIZE; r++) {
-          grid[r][c] = 0;
-          document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`).classList.remove('filled');
+  function placePiece(pData, r, c) {
+    const p = pData.p;
+    for(let pr=0; pr<p.length; pr++) {
+      for(let pc=0; pc<p[0].length; pc++) {
+        if(p[pr][pc]) {
+          grid[r+pr][c+pc] = 1;
+          gridColors[r+pr][c+pc] = pData.c;
+          const el = document.getElementById(`cell-${r+pr}-${c+pc}`);
+          el.style.background = pData.c;
+          el.style.boxShadow = 'inset 0 0 10px rgba(255,255,255,0.4), 0 0 15px ' + pData.c + '44';
+          el.classList.add('filled');
         }
+      }
+    }
+    score += (p.flat().filter(x=>x).length * 10);
+    currentPieces[selectedIdx] = null;
+    document.getElementById(`piece-box-${selectedIdx}`).style.visibility = 'hidden';
+    checkLines();
+    if(currentPieces.every(x => x === null)) spawnPieces();
+    else checkGameOver();
+    scoreEl.textContent = score;
+  }
+
+  function checkLines() {
+    let rows = [], cols = [];
+    for(let r=0; r<GRID_SIZE; r++) if(grid[r].every(x => x === 1)) rows.push(r);
+    for(let c=0; c<GRID_SIZE; c++) {
+      let f = true; for(let r=0; r<GRID_SIZE; r++) if(!grid[r][c]) f=false;
+      if(f) cols.push(c);
+    }
+    if(rows.length || cols.length) {
+      playSound('clear');
+      rows.forEach(r => {
+        grid[r] = Array(GRID_SIZE).fill(0);
+        for(let c=0; c<GRID_SIZE; c++) clearCell(r, c);
       });
-      score += (rowsToClear.length + colsToClear.length) * 100;
+      cols.forEach(c => {
+        for(let r=0; r<GRID_SIZE; r++) { grid[r][c]=0; clearCell(r, c); }
+      });
+      score += (rows.length + cols.length) * 150;
+      showCombo(rows.length + cols.length);
     }
   }
 
+  function clearCell(r, c) {
+    const el = document.getElementById(`cell-${r}-${c}`);
+    el.classList.add('clearing');
+    setTimeout(() => {
+      el.style.background = ''; el.style.boxShadow = '';
+      el.classList.remove('filled', 'clearing');
+    }, 500);
+  }
+
+  function showCombo(n) {
+    const el = document.createElement('div');
+    el.className = 'combo-text';
+    el.textContent = n > 1 ? `COMBO x${n}!` : 'CLEARED!';
+    el.style.left = '50%'; el.style.top = '40%';
+    document.querySelector('.game-board-container').appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+
   function checkGameOver() {
-    const remaining = currentPieces.filter(p => p !== null);
-    if(remaining.length === 0) return;
-    
+    const rem = currentPieces.filter(x => x !== null);
+    if(!rem.length) return;
     let possible = false;
-    for(let p of remaining) {
+    for(let pData of rem) {
       for(let r=0; r<GRID_SIZE; r++) {
-        for(let c=0; c<GRID_SIZE; c++) {
-          if(canPlace(p, r, c)) { possible = true; break; }
-        }
+        for(let c=0; c<GRID_SIZE; c++) { if(canPlace(pData.p, r, c)){ possible=true; break; } }
         if(possible) break;
       }
       if(possible) break;
     }
-
     if(!possible) {
       saveScore();
       document.getElementById('finalScoreVal').textContent = score;
@@ -356,14 +443,8 @@
   }
 
   async function saveScore() {
-    if(score === 0) return;
-    try {
-      await addDoc(collection(db, "leaderboard"), {
-        playerName,
-        score,
-        timestamp: new Date().toISOString()
-      });
-    } catch(e) { console.error(e); }
+    if(score < 50) return;
+    await addDoc(collection(db, "leaderboard"), { playerName, score, timestamp: new Date().toISOString() });
   }
 
   function initLeaderboard() {
@@ -372,15 +453,10 @@
       const list = document.getElementById('lbList');
       list.innerHTML = snap.docs.map((d, i) => {
         const data = d.data();
-        return `
-        <div class="lb-item ${i<3?'top':''}">
-          <span><strong>#${i+1}</strong> ${data.playerName}</span>
-          <span>${data.score}</span>
-        </div>`;
-      }).join('') || '<div style="text-align:center;color:var(--text3);font-size:12px;padding:20px;">Belum ada skor.</div>';
+        return `<div class="lb-item ${i<3?'top':''}"><span><strong>#${i+1}</strong> ${data.playerName}</span><span>${data.score}</span></div>`;
+      }).join('') || '<div style="text-align:center;color:var(--text3);padding:20px;">Belum ada skor.</div>';
     });
   }
-
 </script>
 </body>
 </html>
