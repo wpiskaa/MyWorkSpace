@@ -342,9 +342,9 @@ window.showEventDetail = function(id) {
   window.currentViewedEventId = id;
   
   document.getElementById('m-title').textContent = e.title;
-  document.getElementById('m-header-extra').innerHTML = `<div style="font-size:14px; color:var(--text3); display:flex; gap:15px; margin-bottom:10px;">
-    <span>📅 ${e.date}</span>
-    <span>📍 ${e.location || 'TBA'}</span>
+  document.getElementById('m-header-extra').innerHTML = `<div style="font-size:14px; color:var(--text2); display:flex; justify-content:center; gap:20px; margin-bottom:15px;">
+    <span><span style="color:var(--purple-l)">📅</span> ${e.date}</span>
+    <span><span style="color:var(--pink-l)">📍</span> ${e.location || 'TBA'}</span>
   </div>`;
   
   document.getElementById('m-desc').textContent = e.description || 'Tidak ada deskripsi event.';

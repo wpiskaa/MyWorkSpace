@@ -502,9 +502,10 @@ footer strong { color:var(--purple-l); }
   display: none; /* Clean for screenshot */
 }
 .modal-content.ss-mode .modal-header {
-  padding: 30px 24px 20px;
+  padding: 40px 24px 10px;
   justify-content: center;
   border: none;
+  background: transparent;
 }
 .modal-content.ss-mode #m-title {
   text-align: center;
