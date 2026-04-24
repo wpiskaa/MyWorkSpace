@@ -67,6 +67,18 @@ function initRealtime() {
     notes = snap.docs.map(d => ({id: d.id, ...d.data()}));
     renderNotes();
   });
+  
+  // Settings Listener
+  onSnapshot(collection(db, "settings"), snap => {
+    const s = snap.docs.find(d => d.id === 'piska');
+    if(s) {
+      const data = s.data();
+      const pPhoto = document.getElementById('userProfilePhoto');
+      const pStatus = document.getElementById('userStatusText');
+      if(pPhoto && data.photoURL) pPhoto.src = data.photoURL;
+      if(pStatus && data.status) pStatus.textContent = data.status;
+    }
+  });
 }
 
 /* ─── UI COMPONENTS ─── */

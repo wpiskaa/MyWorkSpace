@@ -7,10 +7,9 @@
   <meta name="description" content="Piska's Personal Workspace — Dashboard terpusat untuk kreativitas, manajemen, dan eksplorasi.">
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Hero Specific */
     .hero-piska {
       min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 120px 24px 60px; position: relative; overflow: hidden;
+      padding: 120px 24px 60px; position: relative; z-index: 10;
     }
     .piska-name {
       font-size: clamp(80px, 20vw, 240px); font-weight: 900; line-height: 0.8; letter-spacing: -8px;
@@ -27,29 +26,37 @@
 </head>
 <body>
 
+<!-- LUXURY BACKGROUND -->
+<div class="mesh-bg">
+  <div class="mesh-orb orb-1"></div>
+  <div class="mesh-orb orb-2"></div>
+  <div class="mesh-orb orb-3"></div>
+</div>
+<div class="noise-overlay"></div>
+
+<!-- CYBER CAT MASCOT -->
+<div class="piska-pet">
+  <div class="pet-speech" id="petSpeech">Meow! Welcome home, Piska.</div>
+  <div class="cat-head">
+    <div class="cat-ear ear-l"></div>
+    <div class="cat-ear ear-r"></div>
+    <div class="cat-eyes">
+      <div class="cat-eye"></div>
+      <div class="cat-eye"></div>
+    </div>
+    <div class="cat-tail"></div>
+  </div>
+</div>
+
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <div class="mesh-bg">
-    <div class="mesh-orb orb-1"></div>
-    <div class="mesh-orb orb-2"></div>
-    <div class="mesh-orb orb-3"></div>
-  </div>
-  <div class="noise-overlay"></div>
-  
-  <div class="piska-pet">
-    <div class="pet-speech" id="petSpeech">Systems Online. Greeting Piska...</div>
-    <div class="pet-body">
-      <div class="pet-inner">
-        <div class="pet-eye"></div>
-        <div class="pet-eye"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="nav-container">
-    <div class="nav-brand">
-      <div class="brand-icon" style="background: var(--purple);">P</div>
-      <div class="brand-text"><span class="brand-name">PISKA</span><span class="brand-org">Workspace</span></div>
+    <div class="nav-brand" onclick="location.href='admin.html'">
+      <img src="https://ui-avatars.com/api/?name=Piska&background=6366f1&color=fff" id="userProfilePhoto" class="profile-img" alt="Piska">
+      <div class="brand-text">
+        <span class="brand-name">PISKA</span>
+        <span class="brand-org" id="userStatusText">Systems Online</span>
+      </div>
     </div>
     <ul class="nav-links">
       <li><a href="index.html" class="nav-link active">Home</a></li>
@@ -61,11 +68,6 @@
 
 <!-- HERO PISKA -->
 <section class="hero-piska">
-  <div class="aurora-bg">
-    <div class="aurora aurora-1" style="background:#0ea5e9; opacity: 0.2;"></div>
-    <div class="aurora aurora-2" style="background:#6366f1; opacity: 0.2;"></div>
-  </div>
-  
   <div class="status-bubble animate-on-scroll">
     <span class="badge-dot" style="background: var(--cyan);"></span>
     Currently: Manifesting Ideas
@@ -80,13 +82,12 @@
 </section>
 
 <!-- MAIN DASHBOARD -->
-<section class="section" id="dashboard">
+<section class="section" id="dashboard" style="position:relative; z-index:10;">
   <div class="section-container">
     <div class="dashboard-grid">
       
       <!-- LEFT COLUMN: Music & Gallery -->
       <div style="display: flex; flex-direction: column; gap: 24px;">
-        <!-- Music Card -->
         <div class="dash-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <h3 style="font-size:18px; font-weight:800;">Now Playing</h3>
@@ -97,7 +98,6 @@
           </div>
         </div>
         
-        <!-- Gallery Card -->
         <div class="dash-card">
           <h3 style="font-size:18px; font-weight:800;">Memory Lane</h3>
           <div class="gallery-grid">
@@ -109,7 +109,7 @@
         </div>
       </div>
       
-      <!-- RIGHT COLUMN: Workspaces & Play -->
+      <!-- RIGHT COLUMN: Workspaces -->
       <div style="display: flex; flex-direction: column; gap: 24px;">
         <div class="dash-card">
           <h3 style="font-size:18px; font-weight:800;">My Workspaces</h3>
@@ -138,7 +138,6 @@
           </div>
         </div>
         
-        <!-- Stats Card (General Info) -->
         <div class="dash-card" style="flex:1;">
           <h3 style="font-size:18px; font-weight:800;">Quick Info</h3>
           <div style="display:flex; flex-direction:column; gap:20px; padding-top:10px;">
@@ -162,55 +161,45 @@
   </div>
 </section>
 
-<!-- QUOTE SECTION -->
-<section class="quote-section">
+<!-- QUOTE -->
+<section class="quote-section" style="position:relative; z-index:10;">
   <div class="section-container animate-on-scroll">
-    <div class="quote-text" id="piskaQuote">
-      "Creativity is intelligence having fun."
-    </div>
+    <div class="quote-text" id="piskaQuote">"Creativity is intelligence having fun."</div>
     <div class="quote-author">— Albert Einstein</div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer style="padding: 60px 0; border-top: 1px solid var(--border); text-align: center;">
-  <div class="section-container">
-    <p style="color: var(--text2); font-size: 14px;">© 2026 <strong>PISKA.dev</strong> · Crafted with Passion for Innovation.</p>
-  </div>
-</footer>
-
 <script type="module" src="script.js"></script>
 <script>
-  // Simple Quote Rotator
+  // Smooth Quote Rotator
   const quotes = [
     '"Creativity is intelligence having fun."',
-    '"Success is not final, failure is not fatal: it is the courage to continue that counts."',
     '"The best way to predict the future is to create it."',
     '"Simplicity is the ultimate sophistication."',
     '"Jangan pernah berhenti bermimpi, tapi jangan cuma mimpi."'
   ];
   let qIdx = 0;
   setInterval(() => {
-    qIdx = (qIdx + 1) % quotes.length;
     const qEl = document.getElementById('piskaQuote');
     if(qEl) {
-      qEl.style.opacity = 0;
+      qEl.classList.add('hiding');
       setTimeout(() => {
+        qIdx = (qIdx + 1) % quotes.length;
         qEl.textContent = quotes[qIdx];
-        qEl.style.opacity = 1;
-      }, 500);
+        qEl.classList.remove('hiding');
+      }, 800);
     }
   }, 5000);
 
-  // Quantum Pet Interaction
+  // Cyber Cat Interaction
   const petGreetings = [
-    "Quantum Systems: Online. Welcome back, Piska.",
-    "Analyzing creative potential... Result: Infinite.",
-    "Synchronizing with the workspace... Done.",
-    "Processing new ideas in the cloud...",
-    "Vibe Check: High Performance Mode active.",
-    "Remember to rest, Piska. Efficiency requires recovery.",
-    "Scanning for inspiration... Found it in your work."
+    "Meow! Welcome back, Piska.",
+    "Looking sharp today, boss!",
+    "Want to play some games?",
+    "I'm keeping the systems warm for you.",
+    "Did you know you're awesome?",
+    "Meow? (That means feed me coding tasks)",
+    "Scanning for bugs... all clear!"
   ];
   const petEl = document.querySelector('.piska-pet');
   const speechEl = document.getElementById('petSpeech');
