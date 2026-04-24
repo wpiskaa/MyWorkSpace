@@ -269,14 +269,24 @@ function buildForm(type,editId) {
   }
   if(type==='task') {
     const t=editId?tasks.find(x=>x.id===editId):{};
-    const assignedIds=t.assignedTo||[];
+    const eventOptions = `<option value="">-- Tanpa Event --</option>` + events.map(e=>`<option value="${e.id}"${t.eventId===e.id?' selected':''}>${e.title}</option>`).join('');
     return `<div class="form-group"><label class="form-label">Judul Tugas *</label><input class="form-input" id="f-title" value="${t.title||''}"></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Sub-divisi *</label><select class="form-select" id="f-subdiv">${SUBDIV_LIST.map(s=>`<option value="${s}"${(t.subdiv||'')==s?' selected':''}>${s}</option>`).join('')}</select></div>
-      <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status"><option value="todo"${(t.status||'todo')==='todo'?' selected':''}>To Do</option><option value="inprogress"${(t.status||'')==='inprogress'?' selected':''}>In Progress</option><option value="done"${(t.status||'')==='done'?' selected':''}>Selesai</option></select></div></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">Deadline</label><input type="date" class="form-input" id="f-due" value="${t.dueDate||''}"></div>
-      <div class="form-group"><label class="form-label">Prioritas</label><select class="form-select" id="f-priority"><option value="normal"${(t.priority||'normal')==='normal'?' selected':''}>Normal</option><option value="high"${(t.priority||'')==='high'?' selected':''}>Tinggi/Penting</option></select></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Sub-divisi *</label><select class="form-select" id="f-subdiv">${SUBDIV_LIST.map(s=>`<option value="${s}"${t.subdiv===s?' selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status"><option value="todo"${t.status==='todo'?' selected':''}>To Do</option><option value="inprogress"${t.status==='inprogress'?' selected':''}>In Progress</option><option value="done"${t.status==='done'?' selected':''}>Selesai</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Deadline</label><input type="date" class="form-input" id="f-due" value="${t.dueDate||''}"></div>
+        <div class="form-group"><label class="form-label">Prioritas</label><select class="form-select" id="f-priority"><option value="normal"${t.priority==='normal'?' selected':''}>Normal</option><option value="high"${t.priority==='high'?' selected':''}>Tinggi</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Hubungkan ke Event</label><select class="form-select" id="f-event">${eventOptions}</select></div>
       <div class="form-group"><label class="form-label">Deskripsi</label><textarea class="form-textarea" id="f-desc">${t.description||''}</textarea></div>
-      <div class="form-group"><label class="form-label">Assign ke Anggota</label><div class="assignees-grid" id="assigneesGrid">${members.map(m=>`<label class="assignee-check"><input type="checkbox" value="${m.id}"${assignedIds.includes(m.id)?' checked':''}><span>${m.name} <span style="color:${SUBDIV_COLORS[m.role]||'#888'};font-size:11px">(${m.role})</span></span></label>`).join('')}</div></div>`;
+      <div class="form-group"><label class="form-label">Assign ke Anggota</label>
+      <div class="assignees-grid" id="assigneesGrid">${members.map(m=>{
+        const mRoles = m.roles || (m.role ? [m.role] : []);
+        const roleStr = mRoles.length ? mRoles.join(', ') : 'Tanpa Role';
+        return `<label class="assignee-check"><input type="checkbox" value="${m.id}"${(t.assignedTo||[]).includes(m.id)?' checked':''}><span>${m.name} (${roleStr})</span></label>`;
+      }).join('')}</div></div>`;
   }
   if(type==='member') {
     const m=editId?members.find(x=>x.id===editId):{};
@@ -313,7 +323,7 @@ async function saveModal(type, editId) {
     item={title:g('f-title'),date:g('f-date'),time:g('f-time'),location:g('f-location'),type:g('f-type'),description:g('f-desc')};
   } else if(type==='task') {
     if(!g('f-title')){alert('Judul tugas wajib diisi!');return;}
-    item={title:g('f-title'),subdiv:g('f-subdiv'),status:g('f-status'),dueDate:g('f-due'),priority:g('f-priority'),description:g('f-desc'),assignedTo:[...document.querySelectorAll('#assigneesGrid input:checked')].map(c=>c.value)};
+    item={title:g('f-title'),subdiv:g('f-subdiv'),status:g('f-status'),dueDate:g('f-due'),priority:g('f-priority'),description:g('f-desc'),eventId:g('f-event'),assignedTo:[...document.querySelectorAll('#assigneesGrid input:checked')].map(c=>c.value)};
   } else if(type==='member') {
     if(!g('f-name')){alert('Nama wajib diisi!');return;}
     const selectedRoles = [...document.querySelectorAll('#rolesGrid input:checked')].map(c=>c.value);

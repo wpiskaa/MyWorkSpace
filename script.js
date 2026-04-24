@@ -240,6 +240,20 @@ window.showTaskDetail = function(id) {
   document.getElementById('m-desc').textContent = t.description || 'Tidak ada deskripsi.';
   document.getElementById('m-due').textContent = t.dueDate || 'Tidak ada deadline.';
   
+  // Show related event
+  const existingEventSection = document.getElementById('m-event-section');
+  if(existingEventSection) existingEventSection.remove();
+
+  const mEvent = document.createElement('div');
+  mEvent.id = 'm-event-section';
+  mEvent.className = 'modal-section';
+  const relatedEvent = events.find(e => e.id === t.eventId);
+  mEvent.innerHTML = `<h3>Event Terkait</h3><p>${relatedEvent ? relatedEvent.title : 'Tidak dihubungkan ke event tertentu'}</p>`;
+  
+  const mBody = document.querySelector('.modal-body');
+  // Insert before assignees section
+  mBody.insertBefore(mEvent, document.querySelector('.modal-section:last-child'));
+
   const mAss = document.getElementById('m-assignees');
   mAss.innerHTML = (t.assignedTo||[]).map(mid => {
     const m = members.find(x=>x.id===mid);
