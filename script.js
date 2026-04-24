@@ -182,9 +182,6 @@ function renderEvents() {
 
     return `
     <div class="event-card animate-on-scroll" style="--i:${i}" onclick="showEventDetail('${e.id}')">
-      <button class="btn-share" onclick="shareEvent('${e.id}', event)" title="Share ke WhatsApp">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-      </button>
       <div class="event-date-badge">
         <div class="event-day">${day}</div>
         <div class="event-month">${month}</div>
@@ -513,41 +510,22 @@ function setupParticles() {
 // Start app
 init();
 
-/* ─── SHARE LOGIC ─── */
-window.shareEvent = function(id, event) {
-  if(event) event.stopPropagation();
-  const e = events.find(x => x.id === id);
-  if(!e) return;
+
+/* ─── SS MODE LOGIC ─── */
+window.toggleSSMode = function() {
+  const modal = document.querySelector('.modal-content');
+  const badge = document.getElementById('m-ss-badge');
+  const overlay = document.getElementById('taskModal');
+  const body = document.querySelector('.modal-body');
   
-  const text = `📍 *${e.title.toUpperCase()}*
-📅 Tanggal: ${e.date}
-🕒 Waktu: ${e.time || 'TBA'}
-📍 Lokasi: ${e.location || 'TBA'}
-
-📝 Deskripsi:
-${e.description || 'Tidak ada deskripsi.'}
-
-Cek detail selengkapnya di Portal Multimedia ITSpecta:
-${window.location.origin + window.location.pathname}`;
-
-  if (navigator.share) {
-    navigator.share({
-      title: e.title,
-      text: text,
-      url: window.location.origin + window.location.pathname
-    }).catch(err => {
-      // Fallback if share fails or cancelled
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-      window.open(waUrl, '_blank');
-    });
+  if (modal.classList.contains('ss-mode')) {
+    modal.classList.remove('ss-mode');
+    badge.style.display = 'none';
+    overlay.style.background = 'rgba(5,5,15,0.85)';
   } else {
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, '_blank');
-  }
-};
-
-window.shareCurrentEvent = function() {
-  if(window.currentViewedEventId) {
-    shareEvent(window.currentViewedEventId);
+    modal.classList.add('ss-mode');
+    badge.style.display = 'block';
+    overlay.style.background = '#000'; // Solid black for contrast
+    body.scrollTop = 0;
   }
 };

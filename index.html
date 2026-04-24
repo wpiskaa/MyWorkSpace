@@ -281,14 +281,16 @@
     <div class="modal-header">
       <h2 id="m-title">Judul Detail</h2>
       <div class="modal-header-actions">
-        <button class="btn-share-modal" id="modalShareBtn" onclick="shareCurrentEvent()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-          Share
+        <button class="btn-share-modal" onclick="toggleSSMode()" style="background:rgba(255,255,255,0.05); color:var(--text); border-color:var(--border-hover)">
+          Mode SS 📸
         </button>
         <button class="modal-close" onclick="closeTaskModal()">&times;</button>
       </div>
     </div>
     <div class="modal-body">
+      <div id="m-ss-badge" style="display:none; text-align:center; margin-bottom:20px;">
+        <div class="section-badge" style="background:rgba(124,58,237,0.15); color:var(--purple-l); letter-spacing:2px;">SS MODE ACTIVE</div>
+      </div>
       <div id="m-header-extra" style="margin-bottom:20px"></div>
       <div class="modal-meta" id="m-meta-wrap">
         <span class="subdiv-badge" id="m-subdiv">Subdivisi</span>

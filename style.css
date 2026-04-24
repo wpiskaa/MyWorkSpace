@@ -482,26 +482,47 @@ footer strong { color:var(--purple-l); }
 .p-names { color: var(--text); }
 
 /* SHARE BUTTONS */
-.btn-share {
-  position: absolute; top: 12px; right: 12px;
-  width: 32px; height: 32px; border-radius: 8px;
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  color: var(--text3); display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: var(--t); z-index: 5;
-}
-.btn-share:hover {
-  background: rgba(37, 211, 102, 0.15); border-color: #25D366; color: #25D366;
-  transform: scale(1.1);
-}
-
 .modal-header-actions { display: flex; align-items: center; gap: 15px; }
 .btn-share-modal {
-  background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3);
-  color: #25D366; padding: 6px 12px; border-radius: 8px; font-size: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border-hover);
+  color: var(--text); padding: 6px 12px; border-radius: 8px; font-size: 12px;
   font-weight: 700; display: flex; align-items: center; gap: 6px;
   cursor: pointer; transition: var(--t);
 }
-.btn-share-modal:hover { background: #25D366 !important; color: #fff !important; }
+.btn-share-modal:hover { background: var(--card-hover) !important; color: #fff !important; }
+
+/* ── SS MODE ── */
+.modal-content.ss-mode {
+  border: 2px solid var(--purple);
+  box-shadow: 0 0 60px rgba(124,58,237,0.4);
+  max-width: 480px; /* Optimal for mobile SS sharing */
+  margin: 20px auto;
+}
+.modal-content.ss-mode .modal-header-actions {
+  display: none; /* Clean for screenshot */
+}
+.modal-content.ss-mode .modal-header {
+  padding: 30px 24px 20px;
+  justify-content: center;
+  border: none;
+}
+.modal-content.ss-mode #m-title {
+  text-align: center;
+  font-size: 26px;
+  background: linear-gradient(135deg, #fff, var(--text2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.modal-content.ss-mode .modal-body {
+  max-height: none; /* Show full content */
+  padding: 0 32px 40px;
+}
+.modal-content.ss-mode .modal-section h3 {
+  color: var(--purple-l);
+  border-bottom: 1px solid rgba(124,58,237,0.2);
+  padding-bottom: 4px;
+  display: inline-block;
+}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px) {
