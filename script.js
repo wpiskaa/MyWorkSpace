@@ -163,7 +163,7 @@ function renderEvents() {
     
     if(eventTasks.length > 0) {
       plottingHtml = `<div class="event-plotting">
-        <div class="plotting-title">Plotting Tim:</div>
+        <div class="plotting-title">Tugas & Crew:</div>
         <div class="plotting-list">
           ${eventTasks.map(t => {
             const assignedNames = (t.assignedTo || []).map(id => {
@@ -340,7 +340,7 @@ window.showEventDetail = function(id) {
   const e = events.find(x=>x.id===id);
   if(!e) return;
   
-  document.getElementById('m-title').textContent = `Plottingan ${e.title}`;
+  document.getElementById('m-title').textContent = e.title;
   document.getElementById('m-header-extra').innerHTML = `<div style="font-size:14px; color:var(--text3); display:flex; gap:15px; margin-bottom:10px;">
     <span>📅 ${e.date}</span>
     <span>📍 ${e.location || 'TBA'}</span>
@@ -379,7 +379,7 @@ window.showEventDetail = function(id) {
     }).join('');
   } else {
     plotList.style.display = 'block';
-    plotItems.innerHTML = '<p style="color:var(--text3); font-size:14px;">Belum ada plottingan tugas untuk event ini.</p>';
+    plotItems.innerHTML = '<p style="color:var(--text3); font-size:14px;">Belum ada tugas yang diinput untuk event ini.</p>';
   }
   
   document.getElementById('m-assignees').innerHTML = '';
