@@ -110,6 +110,18 @@
       60% { transform: translate(-5px, -5px); }
       80% { transform: translate(5px, 5px); }
     }
+
+    /* MOBILE OPTIMIZATION */
+    @media (max-width: 600px) {
+      .game-section { padding: 80px 10px 20px; }
+      .game-board-container { max-width: 320px; }
+      .grid { gap: 4px; padding: 8px; }
+      .piece-box { width: 80px; height: 80px; }
+      .pieces-container { height: 90px; gap: 8px; }
+      .name-card { padding: 24px; }
+      .go-title { font-size: 32px !important; }
+      #drag-ghost { transform: scale(1.2) translateY(-40px); } /* Offset finger for mobile */
+    }
   </style>
 </head>
 <body>
@@ -299,7 +311,9 @@
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     ghost.style.left = (x - 45) + 'px'; ghost.style.top = (y - 45) + 'px';
     clearPreviews();
-    const cell = getCellAtPos(x, y);
+    // On mobile, check slightly above finger for better visibility/feel
+    const checkY = e.touches ? y - 45 : y;
+    const cell = getCellAtPos(x, checkY);
     if(cell && canPlace(currentPieces[selectedIdx].p, cell.r, cell.c)) applyPreview(currentPieces[selectedIdx].p, cell.r, cell.c, currentPieces[selectedIdx].c);
   }
 
@@ -311,7 +325,8 @@
     if(!isDragging) return;
     const x = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
     const y = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-    const cell = getCellAtPos(x, y);
+    const checkY = e.changedTouches ? y - 45 : y;
+    const cell = getCellAtPos(x, checkY);
     if(cell && canPlace(currentPieces[selectedIdx].p, cell.r, cell.c)) {
       placePiece(currentPieces[selectedIdx], cell.r, cell.c);
       playPowerSound('place');
