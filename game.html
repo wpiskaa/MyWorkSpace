@@ -281,8 +281,8 @@
 
 <div class="game-over" id="gameOverModal" style="position:fixed; inset:0; background:rgba(3,3,8,0.96); z-index:5000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(40px); padding: 20px;">
   <div class="game-over-content">
-    <h2 style="color:var(--pink-l); font-size:48px; font-weight:900; letter-spacing:-2px; margin: 0;">Game Over</h2>
-    <div id="finalRank" style="font-size:22px; font-weight: 800; color:var(--purple-l); margin: 10px 0 30px;">LEGEND</div>
+    <h2 id="mockMessage" style="color:var(--pink-l); font-size:32px; font-weight:900; letter-spacing:-1px; margin: 0; line-height: 1.2;">CUPU BANGET!</h2>
+    <div id="finalRank" style="font-size:20px; font-weight: 800; color:var(--purple-l); margin: 15px 0 25px; opacity: 0.8;">ROOKIE</div>
     
     <div style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 28px; margin-bottom: 40px; border: 1px solid var(--glass-border);">
       <p style="font-size:14px; color:var(--text2); margin-bottom: 8px; font-weight: 700; opacity: 0.6;">SKOR AKHIR</p>
@@ -647,6 +647,20 @@
     }
     if(!possible) {
       saveScore();
+      const mocks = [
+        "CUPU BANGET SIH!",
+        "GINI DOANG KEMAMPUANMU?",
+        "BELAJAR LAGI SANA, DEK!",
+        "SKOR SEGINI DOANG? MALU-MALUIN!",
+        "MENDING PENSIUN AJA DEH...",
+        "TANGANNYA KAKU BANGET YA?",
+        "HP-NYA BAGUS, MAINNYA AMPAS!",
+        "YAKIN MAU MAIN LAGI? NOOB!"
+      ];
+      document.getElementById('mockMessage').textContent = mocks[Math.floor(Math.random() * mocks.length)];
+      playSound(150, 'sawtooth', 0.2, 1.0); // Loser sound (low sawtooth)
+      setTimeout(() => playSound(100, 'sawtooth', 0.2, 0.8), 200);
+      
       document.getElementById('finalScoreVal').textContent = score;
       document.getElementById('finalRank').textContent = document.getElementById('playerTitle').textContent;
       document.getElementById('gameOverModal').style.display = 'flex';
