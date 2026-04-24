@@ -222,6 +222,7 @@ ul { list-style:none; }
   z-index:10; display:flex; flex-direction:column; align-items:center; gap:8px;
   color:var(--text3); font-size:11px; letter-spacing:1px; text-transform:uppercase;
   animation:fadeUp 1s 0.8s ease both;
+  text-align:center; width:max-content; white-space:nowrap;
 }
 .scroll-dot {
   width:6px; height:24px; border-radius:99px;

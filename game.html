@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chill Zone — Multimedia ITSpecta</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .game-section {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px;
+      background: radial-gradient(circle at center, #0a0a1a 0%, #05050f 100%);
+    }
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 4/5;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 50px rgba(124,58,237,0.1);
+    }
+    #gameCanvas { width: 100%; height: 100%; display: block; cursor: none; }
+    .game-ui {
+      position: absolute; top: 20px; left: 20px; right: 20px;
+      display: flex; justify-content: space-between;
+      pointer-events: none; font-weight: 800; font-size: 18px;
+    }
+    .score-box { color: var(--purple-l); }
+    .highscore-box { color: var(--pink-l); font-size: 14px; opacity: 0.8; }
+    .game-over {
+      position: absolute; inset: 0;
+      background: rgba(5,5,15,0.9);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; z-index: 100;
+    }
+    .game-over.show { display: flex; animation: fadeIn 0.3s ease; }
+    .go-title { font-size: 48px; font-weight: 900; margin-bottom: 10px; color: var(--pink-l); }
+    .go-score { font-size: 24px; color: var(--text); margin-bottom: 30px; }
+    .btn-restart {
+      padding: 14px 32px; border-radius: 99px;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: #fff; font-weight: 700; border: none; cursor: pointer;
+      transition: var(--t);
+    }
+    .btn-restart:hover { transform: scale(1.05); }
+    .game-instructions {
+      margin-top: 24px; color: var(--text3); font-size: 13px; text-align: center;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar scrolled">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Multimedia</span>
+        <span class="brand-org">ITSpecta</span>
+      </div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Beranda</a></li>
+      <li><a href="game.html" class="nav-link active">Game Chill</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="index.html" class="btn-secondary">Kembali</a>
+    </div>
+  </div>
+</nav>
+
+<section class="game-section">
+  <div class="section-header">
+    <div class="section-badge">Chill Zone</div>
+    <h2 class="section-title">Deadline Dodger</h2>
+    <p class="section-subtitle">Hindari deadline yang jatuh untuk tetap bertahan hidup! Gabutnya anak media.</p>
+  </div>
+
+  <div class="game-container">
+    <div class="game-ui">
+      <div class="score-box">SCORE: <span id="scoreVal">0</span></div>
+      <div class="highscore-box">BEST: <span id="highVal">0</span></div>
+    </div>
+    <div class="game-over" id="gameOver">
+      <div class="go-title">DEADLINED!</div>
+      <div class="go-score">Final Score: <span id="finalScore">0</span></div>
+      <button class="btn-restart" onclick="startGame()">Main Lagi</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <div class="game-instructions">
+    Geser Mouse atau Jari kamu ke kiri & kanan untuk menggerakkan Editor.<br>
+    Jangan biarkan kotak merah (DEADLINE) menyentuhmu!
+  </div>
+</section>
+
+<script>
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('scoreVal');
+  const highEl = document.getElementById('highVal');
+  const goEl = document.getElementById('gameOver');
+  const fsEl = document.getElementById('finalScore');
+
+  let score = 0;
+  let highscore = localStorage.getItem('mm_highscore') || 0;
+  highEl.textContent = highscore;
+
+  let gameActive = false;
+  let player = { x: 0, y: 0, w: 50, h: 50 };
+  let obstacles = [];
+  let particles = [];
+  let frame = 0;
+
+  function initCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    player.y = canvas.height - 80;
+    player.x = canvas.width / 2 - player.w / 2;
+  }
+
+  window.addEventListener('resize', initCanvas);
+  initCanvas();
+
+  // Input
+  window.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    player.x = e.clientX - rect.left - player.w / 2;
+    if(player.x < 0) player.x = 0;
+    if(player.x > canvas.width - player.w) player.x = canvas.width - player.w;
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    player.x = e.touches[0].clientX - rect.left - player.w / 2;
+    if(player.x < 0) player.x = 0;
+    if(player.x > canvas.width - player.w) player.x = canvas.width - player.w;
+    e.preventDefault();
+  }, { passive: false });
+
+  function startGame() {
+    score = 0;
+    frame = 0;
+    obstacles = [];
+    gameActive = true;
+    goEl.classList.remove('show');
+    scoreEl.textContent = '0';
+    animate();
+  }
+
+  function spawnObstacle() {
+    const size = Math.random() * 40 + 30;
+    obstacles.push({
+      x: Math.random() * (canvas.width - size),
+      y: -size,
+      w: size,
+      h: size,
+      v: Math.random() * 3 + 3 + (score / 100),
+      rot: 0,
+      rotV: Math.random() * 0.1 - 0.05
+    });
+  }
+
+  function animate() {
+    if(!gameActive) return;
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    frame++;
+
+    if(frame % 40 === 0) spawnObstacle();
+
+    // Draw Player
+    ctx.fillStyle = '#7c3aed';
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#7c3aed';
+    ctx.beginPath();
+    ctx.roundRect(player.x, player.y, player.w, player.h, 12);
+    ctx.fill();
+    // Icon (simple camera shape)
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(player.x + 10, player.y + 15, 30, 20);
+    ctx.beginPath(); ctx.arc(player.x + 25, player.y + 25, 6, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // Obstacles
+    for(let i = obstacles.length - 1; i >= 0; i--) {
+      let o = obstacles[i];
+      o.y += o.v;
+      o.rot += o.rotV;
+
+      ctx.save();
+      ctx.translate(o.x + o.w/2, o.y + o.h/2);
+      ctx.rotate(o.rot);
+      ctx.fillStyle = '#db2777';
+      ctx.shadowBlur = 10; ctx.shadowColor = '#db2777';
+      ctx.beginPath(); ctx.roundRect(-o.w/2, -o.h/2, o.w, o.h, 8); ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 10px Outfit';
+      ctx.textAlign = 'center';
+      ctx.fillText('DEADLINE', 0, 4);
+      ctx.restore();
+
+      // Collision
+      if(
+        player.x < o.x + o.w &&
+        player.x + player.w > o.x &&
+        player.y < o.y + o.h &&
+        player.y + player.h > o.y
+      ) {
+        endGame();
+      }
+
+      if(o.y > canvas.height) {
+        obstacles.splice(i, 1);
+        score += 10;
+        scoreEl.textContent = score;
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  function endGame() {
+    gameActive = false;
+    goEl.classList.add('show');
+    fsEl.textContent = score;
+    if(score > highscore) {
+      highscore = score;
+      localStorage.setItem('mm_highscore', highscore);
+      highEl.textContent = highscore;
+    }
+  }
+
+  startGame();
+</script>
+
+</body>
+</html>
