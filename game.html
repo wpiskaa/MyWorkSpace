@@ -30,13 +30,10 @@
       background: rgba(255,255,255,0.02); border-radius: 4px;
       transition: all 0.1s; position: relative;
     }
-    .cell.filled { border: 1px solid rgba(255,255,255,0.1); }
-    .cell.preview { opacity: 0.5; }
+    .cell.filled { border: 1px solid rgba(255,255,255,0.2); background: var(--cell-color); }
+    .cell.preview { opacity: 0.5; background: var(--cell-color); }
     .cell.clearing { transform: scale(0); opacity: 0; transition: 0.3s; }
 
-    .pieces-container {
-      display: flex; gap: 10px; width: 100%; justify-content: center; height: 100px;
-    }
     .piece-box {
       width: 90px; height: 90px; background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
@@ -63,6 +60,16 @@
     .name-card {
       background: #0a0a1a; border: 1px solid var(--border); padding: 32px;
       border-radius: 24px; text-align: center; max-width: 360px; width: 90%;
+    }
+
+    .mock-text {
+      color: var(--pink-l); font-size: 24px; font-weight: 900;
+      margin: 10px 0; animation: shake 0.5s infinite;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px) rotate(-2deg); }
+      75% { transform: translateX(5px) rotate(2deg); }
     }
   </style>
 </head>
@@ -113,10 +120,11 @@
 
 <div id="drag-ghost"></div>
 
-<div class="game-over" id="gameOverModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:5000; display:none; align-items:center; justify-content:center;">
+<div class="game-over" id="gameOverModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:5000; display:none; align-items:center; justify-content:center;">
   <div class="name-card">
-    <h2 style="color:var(--pink-l); font-size:32px;">KALAH!</h2>
-    <p style="margin:20px 0; font-size:20px;">Skor: <strong id="finalScoreVal">0</strong></p>
+    <h2 style="color:var(--pink-l); font-size:32px;">GAME OVER!</h2>
+    <div id="mockMessage" class="mock-text">Yah Cupu...</div>
+    <p style="margin:10px 0; font-size:20px;">Skor: <strong id="finalScoreVal">0</strong></p>
     <button class="btn-restart" onclick="location.reload()" style="width:100%; background:var(--purple); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:700; cursor:pointer;">Coba Lagi</button>
   </div>
 </div>
@@ -284,14 +292,14 @@
       for(let pc=0; pc<p[0].length; pc++) {
         if(p[pr][pc]) {
           const el = document.getElementById(`cell-${r+pr}-${c+pc}`);
-          if(el) { el.style.background = color; el.classList.add('preview'); }
+          if(el) { el.style.setProperty('--cell-color', color); el.classList.add('preview'); }
         }
       }
     }
   }
 
   function clearPreviews() {
-    document.querySelectorAll('.cell.preview').forEach(el => { el.style.background = ''; el.classList.remove('preview'); });
+    document.querySelectorAll('.cell.preview').forEach(el => { el.classList.remove('preview'); });
   }
 
   function placePiece(pData, r, c) {
@@ -301,7 +309,7 @@
         if(p[pr][pc]) {
           grid[r+pr][c+pc] = 1;
           const el = document.getElementById(`cell-${r+pr}-${c+pc}`);
-          el.style.background = pData.c; el.classList.add('filled');
+          el.style.setProperty('--cell-color', pData.c); el.classList.add('filled');
         }
       }
     }
@@ -353,6 +361,8 @@
     }
     if(!possible) {
       saveScore();
+      const mocks = ["Yah Cupu...", "Gitu doang?", "Mending turu dek", "Skill Issue nih", "Wkwkwk kalah", "Beban divisi!", "Coba lagi sanah"];
+      document.getElementById('mockMessage').textContent = mocks[Math.floor(Math.random() * mocks.length)];
       document.getElementById('finalScoreVal').textContent = score;
       document.getElementById('gameOverModal').style.display = 'flex';
     }
