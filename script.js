@@ -108,19 +108,22 @@ function updateStats() {
   const today = new Date().toISOString().slice(0,10);
   const upCount = events.filter(e => e.date >= today).length;
   const doneCount = tasks.filter(t => t.status === 'done').length;
+  const activeCount = tasks.filter(t => t.status !== 'done').length;
   
-  const elUp = document.getElementById('statUpcoming');
+  const elUp = document.getElementById('statEvents');
   const elDone = document.getElementById('statDone');
   const elMem = document.getElementById('statMembers');
+  const elActive = document.getElementById('statActive');
   
   if(elUp) elUp.textContent = upCount;
   if(elDone) elDone.textContent = doneCount;
   if(elMem) elMem.textContent = members.length;
+  if(elActive) elActive.textContent = activeCount;
 }
 
 /* ─── RENDER EVENTS ─── */
 function renderEvents() {
-  const grid = document.getElementById('eventGrid');
+  const grid = document.getElementById('scheduleGrid');
   if (!grid) return;
   if (!events.length) {
     grid.innerHTML = '<div class="no-data"><p>Belum ada data event di database.</p></div>';
@@ -132,10 +135,13 @@ function renderEvents() {
   grid.innerHTML = sorted.map((e, i) => {
     let day = '??', month = '???';
     try {
-      const d = new Date(e.date + 'T00:00:00');
-      day = d.getDate();
-      month = d.toLocaleDateString('id-ID', {month:'short'}).toUpperCase();
+      if(e.date) {
+        const d = new Date(e.date + 'T00:00:00');
+        day = d.getDate();
+        month = d.toLocaleDateString('id-ID', {month:'short'}).toUpperCase();
+      }
     } catch(err) {}
+    return `
     <div class="event-card animate-on-scroll" style="--i:${i}">
       <div class="event-date-badge">
         <div class="event-day">${day}</div>
@@ -320,7 +326,7 @@ function renderAnnouncements() {
 
 /* ─── RENDER NOTES ─── */
 function renderNotes() {
-  const grid = document.getElementById('notesGrid');
+  const grid = document.getElementById('notesList');
   if (!grid) return;
   if (!notes.length) return;
   const sorted = [...notes].sort((a,b)=>b.date.localeCompare(a.date));
