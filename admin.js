@@ -20,7 +20,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* ─── CONSTANTS ─── */
-const ADMIN_PASSWORD = 'multimedia2024';
+const ADMIN_PASSWORD = 'piska19';
 const SUBDIV_COLORS = {
   'fotografer':'#f59e0b','videografer':'#3b82f6',
   'desainer grafis':'#a855f7','content creator':'#ec4899','editor':'#10b981'
