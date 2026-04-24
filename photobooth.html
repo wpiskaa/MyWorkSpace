@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PISKA — Creative Studio</title>
+  <title>Multimedia Photobooth — ITSpecta</title>
   <link rel="stylesheet" href="style.css">
   <style>
     :root {
@@ -125,16 +125,18 @@
 
 <nav class="navbar scrolled">
   <div class="nav-container">
-    <div class="nav-brand">
-      <div class="brand-icon" style="background: var(--cyan);">P</div>
-      <div class="brand-text"><span class="brand-name">PISKA</span><span class="brand-org">Creative Studio</span></div>
+    <div class="nav-brand" onclick="location.href='index.html'">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">Multimedia</span>
+        <span class="brand-org">Photobooth</span>
+      </div>
     </div>
     <ul class="nav-links">
-      <li><a href="index.html" class="nav-link">Home</a></li>
-      <li><a href="division.html" class="nav-link">Division</a></li>
-      <li><a href="photobooth.html" class="nav-link active">Studio</a></li>
+      <li><a href="index.html" class="nav-link">Kembali</a></li>
     </ul>
-    <div class="nav-actions"><a href="index.html" class="btn-secondary">Kembali</a></div>
   </div>
 </nav>
 
@@ -383,7 +385,7 @@
   function finalizeCanvas(ctx, theme) {
     ctx.fillStyle = theme.type === 'neon' ? '#fff' : '#333';
     ctx.font = 'bold 38px Outfit'; ctx.textAlign = 'center';
-    ctx.fillText('PISKA CREATIVE STUDIO', resultCanvas.width/2, resultCanvas.height - 80);
+    ctx.fillText('MULTIMEDIA ITSPECTA', resultCanvas.width/2, resultCanvas.height - 80);
     ctx.font = '24px Outfit'; ctx.globalAlpha = 0.5;
     ctx.fillText('✨ ' + new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ' ✨', resultCanvas.width/2, resultCanvas.height - 35);
     resultOverlay.style.display = 'flex';

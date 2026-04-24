@@ -12,19 +12,24 @@
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
-    <div class="nav-brand" onclick="location.href='index.html'">
-      <img src="https://ui-avatars.com/api/?name=Piska&background=6366f1&color=fff" id="userProfilePhoto" class="profile-img" alt="Piska">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </div>
       <div class="brand-text">
-        <span class="brand-name">PISKA</span>
-        <span class="brand-org" id="userStatusText">Division Portal</span>
+        <span class="brand-name">Multimedia</span>
+        <span class="brand-org">ITSpecta</span>
       </div>
     </div>
     <ul class="nav-links">
-      <li><a href="index.html" class="nav-link">Home</a></li>
-      <li><a href="#schedule" class="nav-link active">Jadwal</a></li>
-      <li><a href="#tasks" class="nav-link">Tugas</a></li>
-      <li><a href="#team" class="nav-link">Tim</a></li>
-      <li><a href="game.html" class="nav-link" style="color:var(--pink-l)">Game 🎮</a></li>
+      <li><a href="#home" class="nav-link active" id="nl-home">Beranda</a></li>
+      <li><a href="#schedule" class="nav-link" id="nl-schedule">Jadwal</a></li>
+      <li><a href="#tasks" class="nav-link" id="nl-tasks">Tugas</a></li>
+      <li><a href="#team" class="nav-link" id="nl-team">Tim</a></li>
+      <li><a href="#announcements" class="nav-link" id="nl-ann">Pengumuman</a></li>
+      <li><a href="#notes" class="nav-link" id="nl-notes">Notulensi</a></li>
+      <li><a href="game.html" class="nav-link" style="color:var(--pink-l)">Game Chill 🎮</a></li>
+      <li><a href="photobooth.html" class="nav-link" style="color:var(--cyan-l)">Photobooth 📸</a></li>
     </ul>
     <div class="nav-actions">
       <a href="admin.html" class="btn-admin">
