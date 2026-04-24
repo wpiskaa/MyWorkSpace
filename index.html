@@ -14,9 +14,10 @@
     }
     .piska-name {
       font-size: clamp(80px, 20vw, 240px); font-weight: 900; line-height: 0.8; letter-spacing: -8px;
-      background: linear-gradient(to bottom, #fff 0%, rgba(255,255,255,0.1) 100%);
+      background: linear-gradient(135deg, #fff 30%, #6366f1 60%, #38bdf8 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-bottom: 40px; animation: fadeInUp 1s ease-out;
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
     }
     .piska-tagline {
       font-size: 20px; color: var(--text2); max-width: 500px; text-align: center;
@@ -28,19 +29,20 @@
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <div class="floating-blob blob-1"></div>
-  <div class="floating-blob blob-2"></div>
-  <div class="side-text">CREATIVE</div>
-  <div class="side-text side-text-right">WORKSPACE</div>
+  <div class="mesh-bg">
+    <div class="mesh-orb orb-1"></div>
+    <div class="mesh-orb orb-2"></div>
+    <div class="mesh-orb orb-3"></div>
+  </div>
+  <div class="noise-overlay"></div>
   
   <div class="piska-pet">
-    <div class="pet-speech" id="petSpeech">Halo, Piska! Ada ide apa hari ini?</div>
+    <div class="pet-speech" id="petSpeech">Systems Online. Greeting Piska...</div>
     <div class="pet-body">
-      <div class="pet-eyes">
+      <div class="pet-inner">
         <div class="pet-eye"></div>
         <div class="pet-eye"></div>
       </div>
-      <div class="pet-mouth"></div>
     </div>
   </div>
 
@@ -200,15 +202,15 @@
     }
   }, 5000);
 
-  // Pet Interaction
+  // Quantum Pet Interaction
   const petGreetings = [
-    "Halo, Piska! Ada ide apa hari ini?",
-    "Ayo lanjutin karyamu yang keren!",
-    "Lagi dengerin lagu apa nih?",
-    "Butuh istirahat? Main game yuk!",
-    "Semangat terus ya, master!",
-    "Desainmu makin mantap aja!",
-    "Udah makan belum? Jangan lupa istirahat."
+    "Quantum Systems: Online. Welcome back, Piska.",
+    "Analyzing creative potential... Result: Infinite.",
+    "Synchronizing with the workspace... Done.",
+    "Processing new ideas in the cloud...",
+    "Vibe Check: High Performance Mode active.",
+    "Remember to rest, Piska. Efficiency requires recovery.",
+    "Scanning for inspiration... Found it in your work."
   ];
   const petEl = document.querySelector('.piska-pet');
   const speechEl = document.getElementById('petSpeech');
