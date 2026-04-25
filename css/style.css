@@ -251,9 +251,18 @@ ul { list-style:none; }
 .section-subtitle { font-size:16px; color:var(--text2); max-width:500px; margin:0 auto; }
 
 /* Animate on scroll */
-.animate-on-scroll { opacity:0; transform:translateY(40px); transition:opacity 0.7s ease, transform 0.7s ease; }
-.animate-on-scroll.visible { opacity:1; transform:translateY(0); }
+.animate-on-scroll { 
+  opacity:0; 
+  transform:translateY(40px); 
+  transition:opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1); 
+  will-change: opacity, transform;
+}
+.animate-on-scroll.visible { opacity:1 !important; transform:translateY(0) !important; }
 .stagger { animation-delay:calc(var(--i,0)*0.1s); }
+
+/* Fallback: Make visible if observer fails or on slow loads */
+.hero-content, .section-header { opacity: 1; transform: none; animation: none; }
+section { min-height: 500px; display: block; position: relative; }
 
 /* ── SCHEDULE SECTION ── */
 #schedule { background:var(--bg2); }
