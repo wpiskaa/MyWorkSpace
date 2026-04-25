@@ -15,7 +15,6 @@
 </div>
 <div class="noise-overlay"></div>
 
-<div class="page-wrapper">
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -111,7 +110,6 @@
           <span class="card-label">Jeje Vibe</span>
           <h3 class="card-title">Dunia Butuh Jedag Jedug</h3>
           <p style="font-size:13px; color:var(--text2); margin-bottom:15px;">Jangan Lupa Bersyukut Utk Hari Ini.</p>
-          <!-- JJ Video Section -->
           <div class="video-card" onclick="playVideo('assets/jj_piska.mp4', 'JJ Piska Edit')" style="border-radius:16px; margin-top:0;">
             <div class="video-thumb" style="aspect-ratio: 16/9; border-radius:16px;">
               <img src="assets/coverjeje.png" alt="JJ Edit" style="width:100%; height:100%; object-fit:cover;">
@@ -527,17 +525,10 @@
 
   // Quick UI Fix for immediate rendering
   document.addEventListener('DOMContentLoaded', () => {
-    const text = document.getElementById('typingText');
-    if (text) text.textContent = 'Ruang Piska.';
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); } });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    // Typing text will be handled by script.js
   });
 
 </script>
-</div> <!-- End page-wrapper -->
 <script type="module" src="js/script.js"></script>
 </body>
 </html>

@@ -9,28 +9,6 @@
 </head>
 <body>
 
-<!-- PORTAL ACCESS LOGIN -->
-<div class="login-overlay" id="portalLoginOverlay" style="display: flex;">
-  <div class="login-bg">
-    <div class="login-aurora login-aurora-1"></div>
-    <div class="login-aurora login-aurora-2"></div>
-  </div>
-  <div class="login-card">
-    <div class="login-icon">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    </div>
-    <h1 class="login-title">Multimedia Portal</h1>
-    <p class="login-sub">Masukkan PIN Akses Divisi</p>
-    <div class="form-group">
-      <label class="form-label">PIN Akses</label>
-      <input type="password" class="form-input" id="portalPin" placeholder="Masukkan PIN" onkeydown="if(event.key==='Enter')checkPortalAccess()">
-    </div>
-    <div class="login-error" id="portalLoginError"></div>
-    <button class="btn-login" onclick="checkPortalAccess()">Buka Portal</button>
-  </div>
-</div>
-
-<div class="page-wrapper">
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -282,8 +260,12 @@
         <button class="modal-close" onclick="closeTaskModal()">&times;</button>
       </div>
     </div>
-      <div class="modal-body">
-        <div id="m-header-extra" style="margin-bottom:20px"></div>
+    <div class="modal-body">
+      <div id="m-header-extra" style="margin-bottom:20px"></div>
+      <div class="modal-meta" id="m-meta-wrap">
+        <span class="subdiv-badge" id="m-subdiv">Subdivisi</span>
+        <span class="status-badge" id="m-status">Status</span>
+      </div>
       <div class="modal-section">
         <h3>Deskripsi</h3>
         <p id="m-desc">Deskripsi di sini...</p>
@@ -312,7 +294,6 @@
   </div>
 </div>
 
-</div> <!-- End page-wrapper -->
 <script type="module" src="js/script.js"></script>
 </body>
 </html>

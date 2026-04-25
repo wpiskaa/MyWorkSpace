@@ -36,7 +36,6 @@ let notes = [];
 
 /* ─── INITIALIZATION ─── */
 function init() {
-  checkAccessOnLoad();
   try {
     initRealtime();
   } catch (err) {
@@ -47,31 +46,6 @@ function init() {
   setupParticles();
   setupScrollObserver();
   setupQuoteRotator();
-}
-
-/* ─── PORTAL ACCESS ─── */
-window.checkPortalAccess = function() {
-  const pin = document.getElementById('portalPin')?.value;
-  const error = document.getElementById('portalLoginError');
-  if(pin === 'pdd123') {
-    sessionStorage.setItem('portal_access', 'true');
-    document.getElementById('portalLoginOverlay').style.display = 'none';
-  } else {
-    if(error) {
-      error.textContent = 'PIN Salah! Silakan hubungi koordinator.';
-      error.style.display = 'block';
-    }
-  }
-};
-
-function checkAccessOnLoad() {
-  if(window.location.pathname.includes('portal.html')) {
-    const hasAccess = sessionStorage.getItem('portal_access');
-    if(hasAccess === 'true') {
-      const overlay = document.getElementById('portalLoginOverlay');
-      if(overlay) overlay.style.display = 'none';
-    }
-  }
 }
 
 function initRealtime() {
@@ -203,7 +177,7 @@ function updateStats() {
   
   if(elUp) elUp.textContent = upCount;
   if(elDone) elDone.textContent = doneCount;
-  if(elMem) elMem.textContent = members.length;
+  if(elMem) elMem.textContent = members.length || 0;
   if(elActive) elActive.textContent = activeCount;
 }
 
@@ -223,8 +197,7 @@ function renderEvents() {
   const today = new Date().toISOString().slice(0,10);
   let filtered = [...events];
   
-  if(currentEventFilter === 'all') filtered = events.filter(e => e.date >= today);
-  else if(currentEventFilter === 'upcoming') filtered = events.filter(e => e.date > today);
+  if(currentEventFilter === 'upcoming') filtered = events.filter(e => e.date > today);
   else if(currentEventFilter === 'today') filtered = events.filter(e => e.date === today);
   else if(currentEventFilter === 'past') filtered = events.filter(e => e.date < today);
 
@@ -233,7 +206,7 @@ function renderEvents() {
     return;
   }
   
-  const sorted = filtered.sort((a,b)=>a.date.localeCompare(b.date));
+  const sorted = filtered.sort((a,b)=>b.date.localeCompare(a.date));
   grid.innerHTML = sorted.map((e, i) => {
     let day = '??', month = '???';
     try {
@@ -307,7 +280,12 @@ function renderTasks() {
   const taskToHtml = (t, i) => {
     const tSubdivs = t.subdivs || (t.subdiv ? [t.subdiv] : []);
     const badges = tSubdivs.map(s => `<div class="task-subdiv"><div class="subdiv-dot" style="background:${SUBDIV_COLORS[s] || '#7c3aed'}"></div>${s}</div>`).join('');
-    const names = (t.assignedTo || []).map(id => { const m = members.find(x => x.id === id); return m ? m.name : 'Unknown'; }).join(', ');
+    const assignees = (t.assignedTo || []).map(id => members.find(x => x.id === id)).filter(m => !!m);
+    let filteredAssignees = assignees;
+    if (currentFilter !== 'all') {
+      filteredAssignees = assignees.filter(m => (m.roles || (m.role ? [m.role] : [])).includes(currentFilter));
+    }
+    const names = filteredAssignees.map(m => m.name).join(', ');
     return `<div class="task-card animate-on-scroll" style="--i:${i}" onclick="showTaskDetail('${t.id}')">
       <div class="task-header"><div class="task-title">${t.title}</div><span class="task-status status-${t.status}">${STATUS_LABEL[t.status]||t.status}</span></div>
       <p class="task-desc">${t.description ? t.description.substring(0,80)+'...' : 'No description.'}</p>
@@ -375,21 +353,43 @@ function renderSubdivOverview() {
 window.showTaskDetail = function(id) {
   const t = tasks.find(x=>x.id===id); if(!t) return;
   const STATUS_LABEL = {todo:'To Do',inprogress:'In Progress',done:'Selesai'};
+  
   if(document.getElementById('m-title')) document.getElementById('m-title').textContent = t.title;
   if(document.getElementById('m-desc')) document.getElementById('m-desc').textContent = t.description || 'No description.';
-  if(document.getElementById('m-due')) document.getElementById('m-due').textContent = t.dueDate || 'TBA';
+  if(document.getElementById('m-due')) document.getElementById('m-due').textContent = t.dueDate || 'No Deadline';
   if(document.getElementById('m-date-label')) document.getElementById('m-date-label').textContent = 'Deadline';
   
+  // Badges
+  const subdivEl = document.getElementById('m-subdiv');
+  const statusEl = document.getElementById('m-status');
+  if(subdivEl) {
+    const tSubdivs = t.subdivs || (t.subdiv ? [t.subdiv] : []);
+    subdivEl.textContent = tSubdivs.join(' & ') || 'Umum';
+    subdivEl.style.display = 'inline-block';
+  }
+  if(statusEl) {
+    statusEl.textContent = STATUS_LABEL[t.status] || t.status;
+    statusEl.className = `status-badge status-${t.status}`;
+    statusEl.style.display = 'inline-block';
+  }
+
+  // Assignees
+  const assignList = document.getElementById('m-assignees');
+  if(assignList) {
+    const names = (t.assignedTo || []).map(uid => {
+      const m = members.find(x => x.id === uid);
+      return m ? m.name : 'Unknown';
+    });
+    assignList.innerHTML = names.map(n => `<div class="member-role" style="background:rgba(255,255,255,0.05); color:var(--text2);">${n}</div>`).join('');
+  }
+
   // Visibility
-  const dueSection = document.getElementById('m-due')?.parentElement;
-  const locSection = document.getElementById('m-location-section');
-  const assignSection = document.getElementById('m-assignees-section');
-  const evSection = document.getElementById('m-event-section');
+  toggleModalSections({ due:true, loc:false, assign:true, ev:!!t.eventId, plot:false });
   
-  if(dueSection) dueSection.style.display = 'block';
-  if(locSection) locSection.style.display = 'none';
-  if(assignSection) assignSection.style.display = 'block';
-  if(evSection) evSection.style.display = 'block';
+  if(t.eventId) {
+    const e = events.find(x => x.id === t.eventId);
+    if(document.getElementById('m-event')) document.getElementById('m-event').textContent = e ? e.title : 'Event tidak ditemukan';
+  }
 
   const modal = document.getElementById('taskModal');
   if(modal) modal.classList.add('open');
@@ -403,16 +403,35 @@ window.showEventDetail = function(id) {
   if(document.getElementById('m-location')) document.getElementById('m-location').textContent = e.location || 'TBA';
   if(document.getElementById('m-date-label')) document.getElementById('m-date-label').textContent = 'Waktu & Tanggal';
 
-  // Visibility
-  const dueSection = document.getElementById('m-due')?.parentElement;
-  const locSection = document.getElementById('m-location-section');
-  const assignSection = document.getElementById('m-assignees-section');
-  const evSection = document.getElementById('m-event-section');
+  // Plotting (Tasks for this event)
+  const plotList = document.getElementById('m-plotting-items');
+  const eventTasks = tasks.filter(t => t.eventId === e.id);
+  if(plotList) {
+    if(eventTasks.length > 0) {
+      plotList.innerHTML = eventTasks.map(t => {
+        const names = (t.assignedTo || []).map(uid => {
+          const m = members.find(x => x.id === uid);
+          return m ? m.name : 'Unknown';
+        }).join(', ');
+        const tSubdivs = t.subdivs || (t.subdiv ? [t.subdiv] : []);
+        return `<div class="plotting-item" style="padding:12px; background:rgba(255,255,255,0.03); border-radius:12px; margin-bottom:8px;">
+          <div style="font-weight:700; color:var(--purple-l); font-size:13px; margin-bottom:4px;">${tSubdivs.join(' & ')}</div>
+          <div style="font-size:14px; margin-bottom:4px; color:#fff;">${t.title}</div>
+          <div style="font-size:11px; color:var(--text3);">👥 ${names || 'Belum diplot'}</div>
+        </div>`;
+      }).join('');
+    } else {
+      plotList.innerHTML = '<p style="font-size:13px; color:var(--text3); opacity:0.6;">Belum ada tugas terplot untuk event ini.</p>';
+    }
+  }
 
-  if(dueSection) dueSection.style.display = 'block';
-  if(locSection) locSection.style.display = 'block';
-  if(assignSection) assignSection.style.display = 'none';
-  if(evSection) evSection.style.display = 'none';
+  // Visibility
+  toggleModalSections({ due:true, loc:true, assign:false, ev:false, plot:true });
+  
+  const subdivEl = document.getElementById('m-subdiv');
+  const statusEl = document.getElementById('m-status');
+  if(subdivEl) subdivEl.style.display = 'none';
+  if(statusEl) statusEl.style.display = 'none';
 
   const modal = document.getElementById('taskModal');
   if(modal) modal.classList.add('open');
@@ -427,19 +446,34 @@ window.showAnnDetail = function(id) {
   if(document.getElementById('m-date-label')) document.getElementById('m-date-label').textContent = 'Waktu & Tanggal';
 
   // Visibility
-  const dueSection = document.getElementById('m-due')?.parentElement;
-  const locSection = document.getElementById('m-location-section');
-  const assignSection = document.getElementById('m-assignees-section');
-  const evSection = document.getElementById('m-event-section');
-
-  if(dueSection) dueSection.style.display = 'block';
-  if(locSection) locSection.style.display = a.location ? 'block' : 'none';
-  if(assignSection) assignSection.style.display = 'none';
-  if(evSection) evSection.style.display = 'none';
+  toggleModalSections({ due:true, loc:!!a.location, assign:false, ev:false, plot:false });
+  
+  const subdivEl = document.getElementById('m-subdiv');
+  const statusEl = document.getElementById('m-status');
+  if(subdivEl) subdivEl.style.display = 'none';
+  if(statusEl) {
+    statusEl.textContent = a.priority === 'high' ? 'Penting' : 'Info';
+    statusEl.className = `status-badge status-${a.priority === 'high' ? 'high' : 'info'}`;
+    statusEl.style.display = 'inline-block';
+  }
 
   const modal = document.getElementById('taskModal');
   if(modal) modal.classList.add('open');
 };
+
+function toggleModalSections(config) {
+  const due = document.getElementById('m-due')?.parentElement;
+  const loc = document.getElementById('m-location-section');
+  const assign = document.getElementById('m-assignees-section');
+  const ev = document.getElementById('m-event-section');
+  const plot = document.getElementById('m-plotting-list');
+
+  if(due) due.style.display = config.due ? 'block' : 'none';
+  if(loc) loc.style.display = config.loc ? 'block' : 'none';
+  if(assign) assign.style.display = config.assign ? 'block' : 'none';
+  if(ev) ev.style.display = config.ev ? 'block' : 'none';
+  if(plot) plot.style.display = config.plot ? 'block' : 'none';
+}
 
 window.closeTaskModal = function() {
   const modal = document.getElementById('taskModal');
@@ -467,19 +501,23 @@ function renderTeam() {
 
 function renderAnnouncements() {
   const list = document.getElementById('annList');
-  if (!list || !announcements.length) return;
-  list.innerHTML = announcements.map(a => {
+  if (!list) return;
+  if(!announcements.length) {
+    list.innerHTML = '<div class="no-data"><p>Belum ada pengumuman.</p></div>';
+    return;
+  }
+  list.innerHTML = announcements.sort((a,b)=>b.date.localeCompare(a.date)).map(a => {
     const isHigh = a.priority === 'high';
-    const badgeClass = isHigh ? 'sb-urgent' : 'sb-normal';
+    const badgeClass = isHigh ? 'status-high' : 'status-info';
     const badgeLabel = isHigh ? 'Penting' : 'Info';
     return `<div class="ann-card animate-on-scroll" onclick="showAnnDetail('${a.id}')">
       <div class="ann-content">
         <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
-          <h3 class="ann-title" style="margin:0;">${a.title}</h3>
+          <h3 class="ann-title" style="margin:0; font-size:16px;">${a.title}</h3>
           <span class="status-badge ${badgeClass}" style="font-size:9px; padding:2px 8px;">${badgeLabel}</span>
         </div>
-        <p class="ann-text">${a.content.substring(0,80)}...</p>
-        <div class="ann-date" style="margin-top:10px; font-size:11px; opacity:0.6;">📅 ${a.date}</div>
+        <p class="ann-text" style="font-size:13px; opacity:0.8;">${a.content.substring(0,100)}${a.content.length > 100 ? '...' : ''}</p>
+        <div class="ann-date" style="margin-top:10px; font-size:11px; opacity:0.6;">📅 ${a.date} ${a.time ? '· ⏰ '+a.time : ''}</div>
       </div>
     </div>`;
   }).join('');
@@ -488,10 +526,42 @@ function renderAnnouncements() {
 
 function renderNotes() {
   const grid = document.getElementById('notesList');
-  if (!grid || !notes.length) return;
-  grid.innerHTML = notes.map(n => `<div class="event-card animate-on-scroll"><h3 class="event-title">${n.title}</h3><p style="font-size:14px; color:var(--text2);">${n.content.substring(0,100)}...</p></div>`).join('');
+  if (!grid) return;
+  if(!notes.length) {
+    grid.innerHTML = '<div class="no-data"><p>Belum ada notulensi rapat.</p></div>';
+    return;
+  }
+  grid.innerHTML = notes.sort((a,b)=>b.date.localeCompare(a.date)).map(n => `
+    <div class="event-card animate-on-scroll" onclick="showNoteDetail('${n.id}')">
+      <div class="event-type">${n.topic || 'NOTULENSI'}</div>
+      <h3 class="event-title">${n.title}</h3>
+      <p style="font-size:13px; color:var(--text2); margin-top:8px; line-height:1.5;">${n.content.substring(0,120)}...</p>
+      <div style="margin-top:15px; font-size:11px; color:var(--text3); font-weight:600;">📅 ${n.date}</div>
+    </div>`).join('');
   observeAnimations();
 }
+
+window.showNoteDetail = function(id) {
+  const n = notes.find(x=>x.id===id); if(!n) return;
+  if(document.getElementById('m-title')) document.getElementById('m-title').textContent = n.title;
+  if(document.getElementById('m-desc')) document.getElementById('m-desc').textContent = n.content || 'No content.';
+  if(document.getElementById('m-due')) document.getElementById('m-due').textContent = n.date;
+  if(document.getElementById('m-date-label')) document.getElementById('m-date-label').textContent = 'Tanggal Rapat';
+
+  // Visibility
+  toggleModalSections({ due:true, loc:false, assign:false, ev:false, plot:false });
+  
+  const subdivEl = document.getElementById('m-subdiv');
+  const statusEl = document.getElementById('m-status');
+  if(subdivEl) {
+    subdivEl.textContent = n.topic || 'Umum';
+    subdivEl.style.display = 'inline-block';
+  }
+  if(statusEl) statusEl.style.display = 'none';
+
+  const modal = document.getElementById('taskModal');
+  if(modal) modal.classList.add('open');
+};
 
 function observeAnimations() {
   const observer = new IntersectionObserver((entries) => {
@@ -521,4 +591,7 @@ function setupParticles() {
 const modalOverlay = document.getElementById('taskModal');
 if(modalOverlay) modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) window.closeTaskModal(); });
 
-init();
+
+
+// Global initialization
+document.addEventListener('DOMContentLoaded', init);
