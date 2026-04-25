@@ -240,9 +240,25 @@ let currentFilter = 'all';
 window.filterTasks = function(subdiv, btn) {
   currentFilter = subdiv;
   const fWrap = document.getElementById('tasksFilter');
-  if(fWrap) fWrap.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  if(fWrap) {
+    fWrap.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active');
+      b.style.borderColor = '';
+      b.style.background = '';
+      b.style.color = '';
+    });
+  }
+  if(btn) {
+    btn.classList.add('active');
+    const color = SUBDIV_COLORS[subdiv] || '#7c3aed';
+    if(subdiv !== 'all') {
+      btn.style.borderColor = color + '66';
+      btn.style.background = color + '1a';
+      btn.style.color = color;
+    }
+  }
   renderTasks();
+  renderSubdivOverview(); // Sync the cards above
 };
 
 function renderTasks() {
@@ -276,9 +292,17 @@ function renderSubdivOverview() {
     const subTasks = tasks.filter(t => (t.subdivs || (t.subdiv ? [t.subdiv] : [])).includes(s));
     const done = subTasks.filter(t => t.status === 'done').length;
     const prog = subTasks.length ? Math.round((done/subTasks.length)*100) : 0;
-    return `<div class="subdiv-card ${currentFilter===s?'active':''}" onclick="filterTasks('${s}', this)">
-      <div class="subdiv-name">${s}</div><div class="subdiv-count">${subTasks.length} Tugas</div>
-      <div class="subdiv-progress"><div class="subdiv-progress-fill" style="width:${prog}%; background:${SUBDIV_COLORS[s]}"></div></div>
+    const color = SUBDIV_COLORS[s] || '#7c3aed';
+    const isActive = currentFilter === s;
+    
+    return `<div class="subdiv-card ${isActive ? 'active' : ''}" 
+                 onclick="filterTasks('${s}', this)"
+                 style="${isActive ? `border-color:${color}66; background:${color}08;` : ''}">
+      <div class="subdiv-name" style="color:${color}">${s}</div>
+      <div class="subdiv-count">${subTasks.length} Tugas</div>
+      <div class="subdiv-progress">
+        <div class="subdiv-progress-fill" style="width:${prog}%; background:${color}"></div>
+      </div>
     </div>`;
   }).join('');
 }
