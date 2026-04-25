@@ -359,6 +359,20 @@ section { min-height: 500px; display: block; position: relative; }
   transition:width 1.2s cubic-bezier(0.4,0,0.2,1);
 }
 
+/* Toggle Done Tasks */
+.btn-toggle-done {
+  display:flex; align-items:center; gap:12px;
+  background:rgba(255,255,255,0.03); border:1px solid var(--border);
+  padding:12px 24px; border-radius:16px; color:var(--text2);
+  font-size:14px; font-weight:600; cursor:pointer; transition:var(--t);
+  margin:0 auto;
+}
+.btn-toggle-done:hover { background:rgba(255,255,255,0.06); border-color:var(--border-hover); color:var(--text); }
+.done-count-badge {
+  background:var(--purple); color:#fff;
+  padding:2px 8px; border-radius:99px; font-size:11px;
+}
+
 /* Sub-divisi progress overview */
 .subdiv-overview { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:40px; }
 .subdiv-card {

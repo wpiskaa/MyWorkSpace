@@ -263,11 +263,17 @@ window.filterTasks = function(subdiv, btn) {
 
 function renderTasks() {
   const board = document.getElementById('tasksBoard');
+  const doneBoard = document.getElementById('doneTasksBoard');
   if (!board) return;
-  const filtered = currentFilter === 'all' ? tasks : tasks.filter(t => (t.subdivs || (t.subdiv ? [t.subdiv] : [])).includes(currentFilter));
-  if (!filtered.length) { board.innerHTML = '<div class="no-data"><p>Tidak ada tugas.</p></div>'; return; }
+  
+  const subdivFiltered = currentFilter === 'all' ? tasks : tasks.filter(t => (t.subdivs || (t.subdiv ? [t.subdiv] : [])).includes(currentFilter));
+  
+  const activeTasks = subdivFiltered.filter(t => t.status !== 'done');
+  const doneTasks = subdivFiltered.filter(t => t.status === 'done');
+  
   const STATUS_LABEL = {todo:'To Do',inprogress:'In Progress',done:'Selesai'};
-  board.innerHTML = filtered.map((t, i) => {
+  
+  const taskToHtml = (t, i) => {
     const tSubdivs = t.subdivs || (t.subdiv ? [t.subdiv] : []);
     const badges = tSubdivs.map(s => `<div class="task-subdiv"><div class="subdiv-dot" style="background:${SUBDIV_COLORS[s] || '#7c3aed'}"></div>${s}</div>`).join('');
     const names = (t.assignedTo || []).map(id => { const m = members.find(x => x.id === id); return m ? m.name : 'Unknown'; }).join(', ');
@@ -280,9 +286,36 @@ function renderTasks() {
       </div>
       <div class="task-assignees" style="font-size:11px; color:var(--text2); border-top:1px solid rgba(255,255,255,0.05); padding-top:10px; margin-top:10px; width:100%;">👥 ${names || 'Belum ditugaskan'}</div>
     </div>`;
-  }).join('');
+  };
+
+  board.innerHTML = activeTasks.length 
+    ? activeTasks.map((t, i) => taskToHtml(t, i)).join('')
+    : '<div class="no-data"><p>Tidak ada tugas aktif.</p></div>';
+    
+  if(doneBoard) {
+    doneBoard.innerHTML = doneTasks.length 
+      ? doneTasks.map((t, i) => taskToHtml(t, i)).join('')
+      : '<div class="no-data"><p>Belum ada tugas selesai.</p></div>';
+  }
+  
+  const doneBadge = document.getElementById('doneCountBadge');
+  if(doneBadge) doneBadge.textContent = doneTasks.length;
+
   observeAnimations();
 }
+
+let isDoneVisible = false;
+window.toggleDoneTasks = function() {
+  const board = document.getElementById('doneTasksBoard');
+  const text = document.getElementById('doneToggleText');
+  const icon = document.getElementById('doneToggleIcon');
+  if(!board) return;
+  
+  isDoneVisible = !isDoneVisible;
+  board.style.display = isDoneVisible ? 'grid' : 'none';
+  if(text) text.textContent = isDoneVisible ? 'Sembunyikan Tugas Selesai' : 'Tampilkan Tugas Selesai';
+  if(icon) icon.textContent = isDoneVisible ? '🙈' : '👁️';
+};
 
 function renderSubdivOverview() {
   const wrap = document.getElementById('subdivOverview');
