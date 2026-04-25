@@ -206,7 +206,7 @@ function renderEvents() {
     return;
   }
   
-  const sorted = filtered.sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted = filtered.sort((a,b)=>a.date.localeCompare(b.date));
   grid.innerHTML = sorted.map((e, i) => {
     let day = '??', month = '???';
     try {
