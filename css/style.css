@@ -28,6 +28,9 @@ body {
   overflow-x: hidden; width: 100%; -webkit-font-smoothing: antialiased;
 }
 
+ul { list-style: none; }
+a { text-decoration: none; color: inherit; }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
