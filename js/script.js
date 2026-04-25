@@ -290,6 +290,13 @@ window.showTaskDetail = function(id) {
   if(document.getElementById('m-title')) document.getElementById('m-title').textContent = t.title;
   if(document.getElementById('m-desc')) document.getElementById('m-desc').textContent = t.description || 'No description.';
   if(document.getElementById('m-due')) document.getElementById('m-due').textContent = t.dueDate || 'TBA';
+  
+  // Show task-specific fields
+  const dueSection = document.getElementById('m-due')?.parentElement;
+  const assignSection = document.getElementById('m-assignees-section');
+  if(dueSection) dueSection.style.display = 'block';
+  if(assignSection) assignSection.style.display = 'block';
+
   const modal = document.getElementById('taskModal');
   if(modal) modal.classList.add('open');
 };
@@ -298,6 +305,28 @@ window.showEventDetail = function(id) {
   const e = events.find(x=>x.id===id); if(!e) return;
   if(document.getElementById('m-title')) document.getElementById('m-title').textContent = e.title;
   if(document.getElementById('m-desc')) document.getElementById('m-desc').textContent = e.description || 'No description.';
+  
+  // Hide task-specific fields
+  const dueSection = document.getElementById('m-due')?.parentElement;
+  const assignSection = document.getElementById('m-assignees-section');
+  if(dueSection) dueSection.style.display = 'none';
+  if(assignSection) assignSection.style.display = 'none';
+
+  const modal = document.getElementById('taskModal');
+  if(modal) modal.classList.add('open');
+};
+
+window.showAnnDetail = function(id) {
+  const a = announcements.find(x=>x.id===id); if(!a) return;
+  if(document.getElementById('m-title')) document.getElementById('m-title').textContent = a.title;
+  if(document.getElementById('m-desc')) document.getElementById('m-desc').textContent = a.content || 'No content.';
+  
+  // Hide task-specific fields
+  const dueSection = document.getElementById('m-due')?.parentElement;
+  const assignSection = document.getElementById('m-assignees-section');
+  if(dueSection) dueSection.style.display = 'none';
+  if(assignSection) assignSection.style.display = 'none';
+
   const modal = document.getElementById('taskModal');
   if(modal) modal.classList.add('open');
 };
@@ -329,7 +358,7 @@ function renderTeam() {
 function renderAnnouncements() {
   const list = document.getElementById('annList');
   if (!list || !announcements.length) return;
-  list.innerHTML = announcements.map(a => `<div class="ann-card animate-on-scroll" onclick="showAnnDetail('${a.id}')"><div class="ann-content"><h3 class="ann-title">${a.title}</h3><p class="ann-text">${a.content.substring(0,60)}...</p></div></div>`).join('');
+  list.innerHTML = announcements.map(a => `<div class="ann-card animate-on-scroll" onclick="showAnnDetail('${a.id}')"><div class="ann-content"><h3 class="ann-title">${a.title}</h3><p class="ann-text">${a.content.substring(0,80)}...</p></div></div>`).join('');
   observeAnimations();
 }
 
