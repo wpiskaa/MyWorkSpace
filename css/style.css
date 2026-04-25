@@ -327,6 +327,9 @@ section { min-height: 500px; display: block; position: relative; }
 .status-todo { background:rgba(71,85,105,0.3); color:#94a3b8; }
 .status-inprogress { background:rgba(245,158,11,0.15); color:var(--foto); }
 .status-done { background:rgba(16,185,129,0.15); color:var(--editor); }
+.sb-urgent { background:rgba(219,39,119,0.2) !important; color:#ff2d92 !important; border:1px solid rgba(219,39,119,0.3); }
+.sb-info { background:rgba(6,182,212,0.15) !important; color:var(--cyan-l) !important; border:1px solid rgba(6,182,212,0.2); }
+.sb-normal { background:rgba(59,130,246,0.15) !important; color:var(--video) !important; border:1px solid rgba(59,130,246,0.2); }
 .task-desc { font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:14px; }
 .task-footer { display:flex; align-items:center; justify-content:space-between; }
 .task-subdiv {

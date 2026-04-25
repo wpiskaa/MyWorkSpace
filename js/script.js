@@ -382,11 +382,13 @@ function renderAnnouncements() {
   if (!list || !announcements.length) return;
   list.innerHTML = announcements.map(a => {
     const isHigh = a.priority === 'high';
+    const badgeClass = isHigh ? 'sb-urgent' : 'sb-normal';
+    const badgeLabel = isHigh ? 'Penting' : 'Info';
     return `<div class="ann-card animate-on-scroll" onclick="showAnnDetail('${a.id}')">
       <div class="ann-content">
         <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
           <h3 class="ann-title" style="margin:0;">${a.title}</h3>
-          ${isHigh ? '<span class="status-badge sb-inprogress" style="font-size:9px; padding:2px 8px;">Penting</span>' : ''}
+          <span class="status-badge ${badgeClass}" style="font-size:9px; padding:2px 8px;">${badgeLabel}</span>
         </div>
         <p class="ann-text">${a.content.substring(0,80)}...</p>
         <div class="ann-date" style="margin-top:10px; font-size:11px; opacity:0.6;">📅 ${a.date}</div>
