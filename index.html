@@ -62,7 +62,7 @@
     </div>
     <h1 class="hero-title">
       <span class="title-line">Welcome to</span>
-      <span class="title-line gradient-text" id="typingText"></span>
+      <span class="title-line gradient-text" id="typingText">Ruang Piska.</span>
     </h1>
     <p class="hero-desc">I am Piska. A tech enthusiast, creative designer, and the visionary behind Multimedia ITSpecta. Exploring the intersection of art and code.</p>
     <div class="hero-actions">
@@ -89,24 +89,34 @@
     <div class="personal-grid">
       <!-- Gallery Left -->
       <div class="blog-card animate-on-scroll">
-        <span class="card-label">Gallery Preview</span>
-        <h3 class="card-title">Captured Moments</h3>
+        <span class="card-label">Gallery Journal</span>
         <div class="gallery-grid">
-          <div class="gallery-item"><img src="assets/piska_photography_1_1777057171836.png" alt="Landscape"></div>
-          <div class="gallery-item"><img src="assets/piska_photography_2_1777057192177.png" alt="Street"></div>
-          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070" alt="Tech"></div>
-          <div class="gallery-item"><img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072" alt="Web"></div>
+          <div class="gallery-item" title="Portrait Mode" onclick="openImage(this.querySelector('img').src, 'Portrait Mode')"><img src="assets/fotoprofilestetik.jpeg" alt="Piska Aesthetic"></div>
+          <div class="gallery-item" title="Puncak Lawu" onclick="openImage(this.querySelector('img').src, 'Puncak Lawu')"><img src="assets/naiklawu.jpeg" alt="Gunung Lawu"></div>
+          <div class="gallery-item" title="Wanderlust" onclick="openImage(this.querySelector('img').src, 'Wanderlust')"><img src="assets/travel.jpeg" alt="Travel"></div>
+          <div class="gallery-item" title="Train Vibes" onclick="openImage(this.querySelector('img').src, 'Train Vibes')"><img src="assets/dikereta.jpeg" alt="Kereta"></div>
+          <div class="gallery-item" title="Me & Cat" onclick="openImage(this.querySelector('img').src, 'Me & My Cat')"><img src="assets/ftokusamakucing.jpeg" alt="Kucing"></div>
+          <div class="gallery-item" title="Family" onclick="openImage(this.querySelector('img').src, 'Family First')"><img src="assets/samabapak.jpeg" alt="Sama Bapak"></div>
+          <div class="gallery-item" title="Photography" onclick="openImage(this.querySelector('img').src, 'Photography Life')"><img src="assets/sukamoto.jpeg" alt="Suka Moto"></div>
+          <div class="gallery-item" title="Golden Hour" onclick="openImage(this.querySelector('img').src, 'Golden Hour')"><img src="assets/viewindah.jpeg" alt="View Indah"></div>
+          <div class="gallery-item" title="Gaming Partner" onclick="openImage(this.querySelector('img').src, 'Gaming Partner')"><img src="assets/kucingvalo.jpeg" alt="Kucing Valo"></div>
+          <div class="gallery-item" title="Inspiration" onclick="openImage(this.querySelector('img').src, 'Daily Inspiration')"><img src="assets/inigw.JPG" alt="Piska"></div>
         </div>
       </div>
 
       <!-- Music/Vibe Right -->
       <div style="display:flex; flex-direction:column; gap:24px;">
         <div class="blog-card animate-on-scroll" style="--i:1">
-          <span class="card-label">Vibe Check</span>
-          <h3 class="card-title">Now Playing</h3>
-          <p style="font-size:13px; color:var(--text2); margin-bottom:15px;">Soundtrack yang menemani saya dalam berkarya hari ini.</p>
-          <div class="music-card">
-            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/52m690jqpxP1tHHkRNdl5p?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+          <span class="card-label">Jeje Vibe</span>
+          <h3 class="card-title">Dunia Butuh Jedag Jedug</h3>
+          <p style="font-size:13px; color:var(--text2); margin-bottom:15px;">Jangan Lupa Bersyukut Utk Hari Ini.</p>
+          <div class="video-card" onclick="playVideo('assets/jejepiska.mp4', 'JJ Piska Edit')" style="border-radius:16px; margin-top:0;">
+            <div class="video-thumb" style="aspect-ratio: 16/9; border-radius:16px;">
+              <img src="assets/coverjeje.png" alt="JJ Edit" style="width:100%; height:100%; object-fit:cover;">
+              <div class="video-play-overlay">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -123,7 +133,7 @@
 <!-- ACHIEVEMENTS & BIO -->
 <section class="section" id="about" style="background:var(--bg2)">
   <div class="section-container">
-    <div class="personal-grid" style="grid-template-columns: 1fr 1.5fr;">
+    <div class="personal-grid">
       <div class="blog-card animate-on-scroll">
         <span class="card-label">Who I Am</span>
         <h3 class="card-title">About Piska</h3>
@@ -142,22 +152,22 @@
           <div class="milestone-item">
             <div class="m-icon">🏆</div>
             <div class="m-info">
-              <h4>Koor Multimedia ITSpecta</h4>
-              <p>Memimpin dan mengarahkan visi kreatif divisi multimedia untuk skala organisasi.</p>
+              <h4>Lomba UI/UX ITB</h4>
+              <p>Berkompetisi dalam merancang antarmuka pengguna inovatif di salah satu ajang paling bergengsi.</p>
             </div>
           </div>
           <div class="milestone-item">
-            <div class="m-icon">💻</div>
+            <div class="m-icon">👥</div>
             <div class="m-info">
-              <h4>Fullstack Development</h4>
-              <p>Membangun sistem manajemen divisi yang terintegrasi dengan Firebase & Real-time database.</p>
+              <h4>Aktif Kepanitiaan Multimedia</h4>
+              <p>Mengarahkan tim kreatif dalam berbagai event besar organisasi.</p>
             </div>
           </div>
           <div class="milestone-item">
-            <div class="m-icon">🎨</div>
+            <div class="m-icon">🚀</div>
             <div class="m-info">
-              <h4>Creative Branding</h4>
-              <p>Mengembangkan identitas visual yang modern dan kohesif untuk berbagai proyek digital.</p>
+              <h4>PKM KC 2026</h4>
+              <p>Melakukan riset dan pengembangan inovasi teknologi masa depan.</p>
             </div>
           </div>
         </div>
@@ -179,7 +189,7 @@
       <!-- Portal -->
       <div class="work-card animate-on-scroll" onclick="location.href='portal.html'">
         <div class="work-img">
-          <img src="assets/multimedia_portal_mockup_1777057089514.png" alt="Portal">
+          <img src="assets/portal_mockup.png" alt="Portal">
           <div class="work-overlay">
             <span class="work-tag" style="background:var(--purple); color:#fff;">Management System</span>
           </div>
@@ -197,7 +207,7 @@
       <!-- Photobooth -->
       <div class="work-card animate-on-scroll" style="--i:1" onclick="location.href='photobooth.html'">
         <div class="work-img">
-          <img src="assets/photobooth_app_mockup_1777057109354.png" alt="Photobooth">
+          <img src="assets/photobooth_mockup.png" alt="Photobooth">
           <div class="work-overlay">
             <span class="work-tag" style="background:var(--pink); color:#fff;">Interactive App</span>
           </div>
@@ -215,7 +225,7 @@
       <!-- Game -->
       <div class="work-card animate-on-scroll" style="--i:2" onclick="location.href='game.html'">
         <div class="work-img">
-          <img src="assets/block_game_mockup_1777057131252.png" alt="Game">
+          <img src="assets/game_mockup.png" alt="Game">
           <div class="work-overlay">
             <span class="work-tag" style="background:var(--cyan); color:#fff;">Web Game</span>
           </div>
@@ -233,6 +243,44 @@
   </div>
 </section>
 
+<!-- VIDEOS / MOTION WORKS -->
+<section class="section" id="videos">
+  <div class="section-container">
+    <div class="section-header animate-on-scroll">
+      <div class="section-badge">Motion</div>
+      <h2 class="section-title">Visual Narratives</h2>
+      <p class="section-subtitle">Karya sinematografi dan motion design yang merangkai cerita melalui cahaya dan gerak.</p>
+    </div>
+
+    <div class="video-grid">
+      <div class="video-card animate-on-scroll" onclick="playVideo('assets/MALANG ADVANTURE.mp4', 'Malang Adventure')">
+        <div class="video-thumb">
+          <img src="assets/malang_cover.png" alt="Malang Adventure">
+          <div class="video-play-overlay">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+        </div>
+        <div class="video-info">
+          <h3 class="video-title">Malang Adventure</h3>
+          <p class="video-category">Personal Vlog</p>
+        </div>
+      </div>
+      <div class="video-card animate-on-scroll" style="--i:1" onclick="playVideo('assets/Cincin Hindia - pISKA.mp4', 'Cincin - Hindia')">
+        <div class="video-thumb">
+          <img src="assets/cincin_cover.jpg" alt="Cincin Hindia">
+          <div class="video-play-overlay">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+        </div>
+        <div class="video-info">
+          <h3 class="video-title">Cincin - Hindia</h3>
+          <p class="video-category">Short Film / Visual</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- MUSIC SOUNDTRACK -->
 <section class="section" id="music" style="background:var(--bg2);">
   <div class="section-container">
@@ -243,34 +291,44 @@
     </div>
 
     <div class="music-grid">
-      <div class="music-card animate-on-scroll">
+      <div class="music-card animate-on-scroll" onclick="playMusic('assets/Bernadya - Kita Buat Menyenangkan (Official Lyric Video).mp3', 'Kita Buat Menyenangkan', 'Bernadya', 'https://i.scdn.co/image/ab67616d0000b273b06603a1104e12e845c43209')">
         <div class="music-cover">
-          <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=2070" alt="Cover">
+          <img src="https://i.scdn.co/image/ab67616d0000b273b06603a1104e12e845c43209" alt="Bernadya" onerror="this.src='https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=200'">
           <div class="music-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
         <div class="music-info">
-          <h3 class="music-track">Midnight City</h3>
-          <p class="music-artist">M83</p>
+          <h3 class="music-track">Kita Buat Menyenangkan</h3>
+          <p class="music-artist">Bernadya</p>
         </div>
       </div>
-      <div class="music-card animate-on-scroll" style="--i:1">
+      <div class="music-card animate-on-scroll" style="--i:1" onclick="playMusic('assets/Perunggu - 33x Video Lirik.mp3', '33x', 'Perunggu', 'https://i.scdn.co/image/ab67616d0000b2737b75822516f485d6fc90b60e')">
         <div class="music-cover">
-          <img src="https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070" alt="Cover">
+          <img src="https://i.scdn.co/image/ab67616d0000b2737b75822516f485d6fc90b60e" alt="Perunggu" onerror="this.src='https://images.unsplash.com/photo-1514525253361-bee8718a74a2?q=80&w=200'">
           <div class="music-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
         <div class="music-info">
-          <h3 class="music-track">Nightcall</h3>
-          <p class="music-artist">Kavinsky</p>
+          <h3 class="music-track">33x</h3>
+          <p class="music-artist">Perunggu</p>
         </div>
       </div>
-      <div class="music-card animate-on-scroll" style="--i:2">
+      <div class="music-card animate-on-scroll" style="--i:2" onclick="playMusic('assets/Kahitna Feat. Monita Tahalea - Titik Nadir Official Music Video.mp3', 'Titik Nadir', 'Kahitna ft. Monita', 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/f0/0c/e7f00c5b-7e92-7206-2b33-b4510559e9fa/25UMGIM70932.rgb.jpg/600x600bf-60.jpg')">
         <div class="music-cover">
-          <img src="https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=2070" alt="Cover">
+          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/f0/0c/e7f00c5b-7e92-7206-2b33-b4510559e9fa/25UMGIM70932.rgb.jpg/600x600bf-60.jpg" alt="Kahitna" onerror="this.src='https://images.unsplash.com/photo-1459749411177-042180ce673c?q=80&w=200'">
           <div class="music-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
         <div class="music-info">
-          <h3 class="music-track">Starboy</h3>
-          <p class="music-artist">The Weeknd</p>
+          <h3 class="music-track">Titik Nadir</h3>
+          <p class="music-artist">Kahitna ft. Monita</p>
+        </div>
+      </div>
+      <div class="music-card animate-on-scroll" style="--i:3" onclick="playMusic('assets/Mencintaimu - Kris Dayanti AdityaBR Cover.mp3', 'Mencintaimu', 'Kris Dayanti (Cover)', 'https://i.scdn.co/image/ab67616d0000b2732958f280a56396f4b462947a')">
+        <div class="music-cover">
+          <img src="https://i.scdn.co/image/ab67616d0000b2732958f280a56396f4b462947a" alt="Kris Dayanti" onerror="this.src='https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=200'">
+          <div class="music-play-btn"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+        </div>
+        <div class="music-info">
+          <h3 class="music-track">Mencintaimu</h3>
+          <p class="music-artist">Kris Dayanti (Cover)</p>
         </div>
       </div>
     </div>
@@ -281,6 +339,202 @@
   <p>© 2026 <strong>PISKA.dev</strong> · Personal Workspace & Portfolio</p>
 </footer>
 
+<!-- VIDEO MODAL -->
+<div class="modal-overlay" id="videoModal" onclick="if(event.target === this) closeVideoModal()">
+  <div class="modal-content" style="max-width:1000px; padding:0; background:transparent; box-shadow:none;">
+    <button class="modal-close" onclick="closeVideoModal()" style="position:fixed; top:30px; right:30px; width:48px; height:48px; background:rgba(255,255,255,0.1); backdrop-filter:blur(10px); border-radius:50%; border:1px solid rgba(255,255,255,0.2); font-size:32px; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:100;">&times;</button>
+    <div style="background:#000; border-radius:24px; overflow:hidden; box-shadow:0 0 100px rgba(0,0,0,0.8);">
+      <video id="mainVideo" controls style="width:100%; display:block; max-height:85vh;">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE MODAL (LIGHTBOX) -->
+<div class="modal-overlay" id="imageModal" onclick="if(event.target === this) closeImageModal()">
+  <div class="modal-content" style="max-width:800px; background:transparent; box-shadow:none; text-align:center;">
+    <button class="modal-close" onclick="closeImageModal()" style="position:fixed; top:30px; right:30px;">&times;</button>
+    <img id="modalImg" src="" alt="Focus View" style="max-width:100%; max-height:80vh; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1);">
+    <h3 id="modalCaption" style="margin-top:20px; color:#fff; font-size:18px; font-weight:600; opacity:0.8;">Caption</h3>
+  </div>
+</div>
+
+<!-- AESTHETIC MUSIC PLAYER -->
+<div id="musicPlayer" class="player-capsule">
+  <div class="player-close" onclick="toggleWidget()">&times;</div>
+  <div class="player-main">
+    <div class="player-art"><img id="pArt" src="" alt=""></div>
+    <div class="player-meta">
+      <div id="pTrack" class="player-track">Track Name</div>
+      <div id="pArtist" class="player-artist">Artist Name</div>
+    </div>
+  </div>
+  <div class="player-controls">
+    <button class="p-btn p-btn-play" onclick="togglePlay()">
+      <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <svg id="pauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+    </button>
+    <div style="flex:1;">
+      <div class="p-progress-bar" onclick="seekAudio(event)">
+        <div id="pFill" class="p-progress-fill"></div>
+      </div>
+      <div class="player-time">
+        <span id="pCurrent">0:00</span>
+        <span id="pDuration">0:00</span>
+      </div>
+    </div>
+  </div>
+  <audio id="mainAudio" style="display:none;"></audio>
+</div>
+
+<!-- TOGGLE PLAYER BUTTON -->
+<div id="playerToggle" onclick="toggleWidget()" style="position:fixed; bottom:32px; right:32px; width:56px; height:56px; background:var(--purple); border-radius:50%; display:none; align-items:center; justify-content:center; cursor:pointer; z-index:1999; box-shadow:0 10px 25px rgba(124,58,237,0.4); border:2px solid rgba(255,255,255,0.1); transition:0.3s;">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+</div>
+
+<script>
+  // UI Logic for Media
+  window.playVideo = function(src, title) {
+    const modal = document.getElementById('videoModal');
+    const video = document.getElementById('mainVideo');
+    if(modal && video) {
+      video.src = src;
+      modal.classList.add('open');
+      video.play().catch(e => {
+        alert(`Video "${src}" tidak ditemukan. Pastikan file sudah ada di folder assets!`);
+        closeVideoModal();
+      });
+      
+      video.onerror = function() {
+        alert(`Gagal memuat video: ${src}`);
+        closeVideoModal();
+      };
+    }
+  };
+  window.closeVideoModal = function() {
+    const modal = document.getElementById('videoModal');
+    const video = document.getElementById('mainVideo');
+    if(modal) modal.classList.remove('open');
+    if(video) {
+      video.pause();
+      video.src = "";
+    }
+  };
+
+  window.openImage = function(src, caption) {
+    const modal = document.getElementById('imageModal');
+    const img = document.getElementById('modalImg');
+    const cap = document.getElementById('modalCaption');
+    if(modal && img) {
+      img.src = src;
+      cap.textContent = caption;
+      modal.classList.add('open');
+    }
+  };
+  window.closeImageModal = function() {
+    const modal = document.getElementById('imageModal');
+    if(modal) modal.classList.remove('open');
+  };
+
+  // Keyboard Support
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') {
+      closeVideoModal();
+      closeImageModal();
+      if(typeof hidePlayer === 'function') hidePlayer();
+    }
+  });
+  window.playMusic = function(src, title, artist, cover) {
+    const player = document.getElementById('musicPlayer');
+    const audio = document.getElementById('mainAudio');
+    const pTrack = document.getElementById('pTrack');
+    const pArtist = document.getElementById('pArtist');
+    const pArt = document.getElementById('pArt');
+
+    if(!player || !audio) return;
+
+    pTrack.textContent = title;
+    pArtist.textContent = artist;
+    pArt.src = cover;
+    audio.src = src;
+    
+    player.classList.add('open');
+    document.getElementById('playerToggle').style.display = 'none';
+    audio.play().catch(e => alert(`File "${src}" tidak ditemukan di folder assets!`));
+
+    audio.ontimeupdate = () => {
+      const prog = (audio.currentTime / audio.duration) * 100;
+      document.getElementById('pFill').style.width = prog + '%';
+      document.getElementById('pCurrent').textContent = formatTime(audio.currentTime);
+      document.getElementById('pDuration').textContent = formatTime(audio.duration);
+    };
+
+    audio.onplay = () => {
+      document.getElementById('playIcon').style.display = 'none';
+      document.getElementById('pauseIcon').style.display = 'block';
+    };
+    audio.onpause = () => {
+      document.getElementById('playIcon').style.display = 'block';
+      document.getElementById('pauseIcon').style.display = 'none';
+    };
+  };
+
+  window.togglePlay = function() {
+    const audio = document.getElementById('mainAudio');
+    audio.paused ? audio.play() : audio.pause();
+  };
+
+  window.seekAudio = function(e) {
+    const audio = document.getElementById('mainAudio');
+    const bar = e.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const pos = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pos * audio.duration;
+  };
+
+  window.toggleWidget = function() {
+    const player = document.getElementById('musicPlayer');
+    const toggle = document.getElementById('playerToggle');
+    if(player.classList.contains('open')) {
+      player.classList.remove('open');
+      toggle.style.display = 'flex';
+      toggle.style.transform = 'scale(0)';
+      setTimeout(() => toggle.style.transform = 'scale(1)', 10);
+    } else {
+      player.classList.add('open');
+      toggle.style.display = 'none';
+    }
+  };
+
+  window.hidePlayer = function() {
+    const player = document.getElementById('musicPlayer');
+    const toggle = document.getElementById('playerToggle');
+    const audio = document.getElementById('mainAudio');
+    if(player) player.classList.remove('open');
+    if(toggle) toggle.style.display = 'none';
+    if(audio) audio.pause();
+  };
+
+  function formatTime(s) {
+    if(isNaN(s)) return "0:00";
+    const m = Math.floor(s/60);
+    const rs = Math.floor(s%60);
+    return `${m}:${rs < 10 ? '0' : ''}${rs}`;
+  }
+
+  // Quick UI Fix for immediate rendering
+  document.addEventListener('DOMContentLoaded', () => {
+    const text = document.getElementById('typingText');
+    if (text) text.textContent = 'Ruang Piska.';
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+  });
+
+</script>
 <script type="module" src="js/script.js"></script>
 </body>
 </html>

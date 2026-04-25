@@ -36,7 +36,11 @@ let notes = [];
 
 /* ─── INITIALIZATION ─── */
 function init() {
-  initRealtime();
+  try {
+    initRealtime();
+  } catch (err) {
+    console.error("Firebase Init Error:", err);
+  }
   setupNavbar();
   setupHeroTyping();
   setupParticles();
@@ -122,7 +126,7 @@ function setupHeroTyping() {
   const isPortal = window.location.pathname.includes('portal.html');
   const words = isPortal 
     ? ['Kreatif.', 'Inovatif.', 'Profesional.', 'Satu Visi.']
-    : ['Piska Space.', 'Creative Hub.', 'Digital World.', 'My Reality.'];
+    : ['Ruang Piska.', 'Pusat Kreatif.', 'Dunia Digital.', 'Realitaku.'];
     
   let i=0, j=0, current='', isDeleting=false;
   
@@ -144,10 +148,10 @@ function setupQuoteRotator() {
   const qEl = document.getElementById('piskaQuote');
   if(!qEl) return;
   const quotes = [
-    "\"The best way to predict the future is to create it.\"",
-    "\"Design is not just what it looks like, design is how it works.\"",
-    "\"Simplicity is the ultimate sophistication.\"",
-    "\"Stay hungry, stay foolish.\""
+    "\"Cara terbaik memprediksi masa depan adalah dengan menciptakannya.\"",
+    "\"Desain bukan hanya tampilan, desain adalah cara kerjanya.\"",
+    "\"Kesederhanaan adalah kecanggihan tertinggi.\"",
+    "\"Teruslah lapar, teruslah merasa bodoh untuk terus belajar.\""
   ];
   let qIdx = 0;
   setInterval(() => {
