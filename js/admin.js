@@ -81,6 +81,31 @@ function toast(msg, dur=2500) {
   setTimeout(()=>t.classList.remove('show'),dur);
 }
 
+/* ─── MOBILE MENU ─── */
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.querySelector('.admin-sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+
+  if (toggle && sidebar && overlay) {
+    const toggleMenu = () => {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('open');
+    };
+
+    toggle.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+
+    // Close when clicking links
+    sidebar.addEventListener('click', (e) => {
+      if (e.target.closest('.sidebar-link') || e.target.closest('.btn-logout')) {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      }
+    });
+  }
+});
+
 /* ─── REALTIME SYNC ─── */
 function initRealtime() {
   onSnapshot(collection(db, "members"), snap => {
