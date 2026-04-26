@@ -964,6 +964,17 @@ footer strong { color:var(--purple-l); }
   font-size:10px; color:rgba(255,255,255,0.4); font-weight:700;
   letter-spacing:1px;
 }
+.player-volume {
+  display:flex; align-items:center; gap:8px; margin-top:12px; color:rgba(255,255,255,0.7);
+}
+.player-volume input {
+  flex:1; height:4px; appearance:none; background:rgba(255,255,255,0.1); border-radius:4px;
+  cursor:pointer;
+}
+.player-volume input::-webkit-slider-thumb {
+  appearance:none; width:12px; height:12px; border-radius:50%; background:var(--purple-l);
+  cursor:pointer;
+}
 .player-close {
   position:absolute; top:12px; right:12px;
   width:28px; height:28px; border-radius:50%;
@@ -975,6 +986,8 @@ footer strong { color:var(--purple-l); }
 
 @media(max-width:480px) {
   .player-capsule { left:16px; right:16px; width:auto; bottom:20px; }
+  #playerToggle { bottom: 20px !important; right: 20px !important; width: 48px !important; height: 48px !important; }
+  #playerToggle svg { width: 20px; height: 20px; }
 }
 
 /* ── BADGES ── */

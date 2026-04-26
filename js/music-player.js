@@ -94,6 +94,14 @@ window.hidePlayer = function() {
   localStorage.setItem(M_PLAYING, 'false');
 };
 
+window.setVolume = function(val) {
+  const audio = document.getElementById('mainAudio');
+  if (audio) {
+    audio.volume = parseFloat(val);
+    localStorage.setItem('piska_m_volume', val);
+  }
+};
+
 function initPersistentMusic() {
   const audio = document.getElementById('mainAudio');
   if (!audio) return;
@@ -106,9 +114,15 @@ function initPersistentMusic() {
       localStorage.getItem(M_ARTIST), 
       localStorage.getItem(M_COVER), 
       false, 
-      isPlaying
+      false // User requested it to be hidden initially
     );
     audio.currentTime = parseFloat(localStorage.getItem(M_TIME) || 0);
+    const vol = localStorage.getItem('piska_m_volume');
+    if (vol !== null) {
+      audio.volume = parseFloat(vol);
+      const vSlider = document.getElementById('pVolume');
+      if (vSlider) vSlider.value = vol;
+    }
     if (isPlaying) {
       audio.play().catch(() => localStorage.setItem(M_PLAYING, 'false'));
     }
