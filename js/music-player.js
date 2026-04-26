@@ -13,7 +13,7 @@ function formatTime(s) {
   return `${m}:${rs < 10 ? '0' : ''}${rs}`;
 }
 
-window.playMusic = function(src, title, artist, cover, forcePlay = true) {
+window.playMusic = function(src, title, artist, cover, forcePlay = true, shouldOpen = true) {
   const player = document.getElementById('musicPlayer');
   const audio = document.getElementById('mainAudio');
   if(!player || !audio) return;
@@ -27,9 +27,17 @@ window.playMusic = function(src, title, artist, cover, forcePlay = true) {
   const newFullSrc = new URL(src, window.location.href).href;
   if (currentFullSrc !== newFullSrc) { audio.src = src; audio.load(); }
   
-  player.classList.add('open');
   const toggle = document.getElementById('playerToggle');
-  if(toggle) toggle.style.display = 'none';
+  if (shouldOpen) {
+    player.classList.add('open');
+    if(toggle) toggle.style.display = 'none';
+  } else {
+    player.classList.remove('open');
+    if(toggle) {
+      toggle.style.display = 'flex';
+      toggle.style.transform = 'scale(1)';
+    }
+  }
 
   if (forcePlay) audio.play().catch(e => console.warn("Playback blocked:", e));
 
@@ -91,9 +99,17 @@ function initPersistentMusic() {
   if (!audio) return;
   const src = localStorage.getItem(M_SRC);
   if (src) {
-    window.playMusic(src, localStorage.getItem(M_TITLE), localStorage.getItem(M_ARTIST), localStorage.getItem(M_COVER), false);
+    const isPlaying = localStorage.getItem(M_PLAYING) === 'true';
+    window.playMusic(
+      src, 
+      localStorage.getItem(M_TITLE), 
+      localStorage.getItem(M_ARTIST), 
+      localStorage.getItem(M_COVER), 
+      false, 
+      isPlaying
+    );
     audio.currentTime = parseFloat(localStorage.getItem(M_TIME) || 0);
-    if (localStorage.getItem(M_PLAYING) === 'true') {
+    if (isPlaying) {
       audio.play().catch(() => localStorage.setItem(M_PLAYING, 'false'));
     }
   }
