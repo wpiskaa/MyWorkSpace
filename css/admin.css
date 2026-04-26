@@ -160,6 +160,15 @@ a { text-decoration:none; color:inherit; }
   transition: var(--t);
 }
 
+.sidebar-close {
+  display: none;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(255,255,255,0.05); color: var(--text2);
+  border: none; cursor: pointer; align-items: center; justify-content: center;
+  transition: var(--t);
+}
+.sidebar-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
 .admin-content { padding:28px; flex:1; overflow-y:auto; overflow-x: hidden; }
 
 /* ── PANEL PAGES ── */
@@ -331,7 +340,13 @@ a { text-decoration:none; color:inherit; }
     transform: translateX(280px);
   }
   
-  .sidebar-header { display: flex; padding: 24px 20px; }
+  .sidebar-header { 
+    display: flex; 
+    padding: 24px 20px; 
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sidebar-close { display: flex; }
   .sidebar-brand-name, .sidebar-brand-sub, .sidebar-section, .sidebar-footer { display:block; }
   .sidebar-nav { display:flex; flex-direction:column; padding: 16px 12px; gap: 4px; overflow-y: auto; }
   .sidebar-link { 

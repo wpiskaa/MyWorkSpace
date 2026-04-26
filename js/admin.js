@@ -84,23 +84,28 @@ function toast(msg, dur=2500) {
 /* ─── MOBILE MENU ─── */
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('mobileMenuToggle');
-  const sidebar = document.querySelector('.admin-sidebar');
+  const sidebar = document.getElementById('adminSidebar');
   const overlay = document.getElementById('sidebarOverlay');
+  const closeBtn = document.getElementById('sidebarClose');
 
   if (toggle && sidebar && overlay) {
-    const toggleMenu = () => {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('open');
+    const openMenu = () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+    };
+    const closeMenu = () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
     };
 
-    toggle.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', toggleMenu);
+    toggle.addEventListener('click', openMenu);
+    overlay.addEventListener('click', closeMenu);
+    if(closeBtn) closeBtn.addEventListener('click', closeMenu);
 
     // Close when clicking links
     sidebar.addEventListener('click', (e) => {
       if (e.target.closest('.sidebar-link') || e.target.closest('.btn-logout')) {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('open');
+        closeMenu();
       }
     });
   }
