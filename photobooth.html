@@ -442,74 +442,86 @@
 
     // ============================================================
     // RENDERING FRAME GAMBAR (1-strip & 3-strip)
-    // Urutan: frame dulu → foto di belakang frame (destination-over)
-    // → background paling belakang
+    // Strategi: gambar foto dulu di koordinat photoBox (tanpa clip),
+    // lalu frame di atasnya. Jika area frame transparan → foto kelihatan.
+    // Jika opaque → gunakan pixel replacement via ImageData.
     // ============================================================
     if (theme.type === 'image') {
       const frameImg = new Image();
       frameImg.onload = () => {
-        // 1. Bersihkan canvas sepenuhnya (transparan)
-        ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+        const W = resultCanvas.width, H = resultCanvas.height;
 
-        // 2. Gambar frame PNG di lapisan paling atas (mode normal)
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.drawImage(frameImg, 0, 0, resultCanvas.width, resultCanvas.height);
+        // === PASS 1: Render foto ke offscreen canvas ===
+        const photoCanvas = document.createElement('canvas');
+        photoCanvas.width = W; photoCanvas.height = H;
+        const pCtx = photoCanvas.getContext('2d');
+        pCtx.fillStyle = '#000';
+        pCtx.fillRect(0, 0, W, H);
 
-        // Jika tidak ada foto, langsung tampilkan
-        if (capturedPhotos.length === 0) {
-          ctx.globalCompositeOperation = 'destination-over';
-          ctx.fillStyle = theme.bg;
-          ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
-          ctx.globalCompositeOperation = 'source-over';
+        const drawAllPhotos = (onDone) => {
+          if (capturedPhotos.length === 0) { onDone(); return; }
+          let loaded = 0;
+          capturedPhotos.forEach((src, i) => {
+            const img = new Image();
+            img.onload = () => {
+              if (theme.photoBoxes && theme.photoBoxes[i]) {
+                const { x, y, w: pw, h: ph, angle = 0 } = theme.photoBoxes[i];
+                pCtx.save();
+                pCtx.translate(x + pw / 2, y + ph / 2);
+                pCtx.rotate(angle);
+                pCtx.translate(-(pw / 2), -(ph / 2));
+                drawImageCoverCtx(pCtx, img, 0, 0, pw, ph);
+                pCtx.restore();
+              }
+              if (++loaded === capturedPhotos.length) onDone();
+            };
+            img.src = src;
+          });
+        };
+
+        drawAllPhotos(() => {
+          // === PASS 2: Gambar frame ke main canvas ===
+          ctx.clearRect(0, 0, W, H);
+          ctx.drawImage(frameImg, 0, 0, W, H);
+
+          // === PASS 3: Pixel replacement — ganti piksel gelap frame
+          //     di area photoBox dengan piksel foto yang sesuai ===
+          const frameData  = ctx.getImageData(0, 0, W, H);
+          const photoData  = pCtx.getImageData(0, 0, W, H);
+          const framePx    = frameData.data;
+          const photoPx    = photoData.data;
+
+          // Untuk setiap photoBox, scan tiap piksel di dalamnya
+          (theme.photoBoxes || []).forEach((box, i) => {
+            if (i >= capturedPhotos.length) return;
+            const { x: bx, y: by, w: bw, h: bh } = box;
+            const x0 = Math.max(0, Math.floor(bx));
+            const y0 = Math.max(0, Math.floor(by));
+            const x1 = Math.min(W, Math.ceil(bx + bw));
+            const y1 = Math.min(H, Math.ceil(by + bh));
+
+            for (let py = y0; py < y1; py++) {
+              for (let px = x0; px < x1; px++) {
+                const idx = (py * W + px) * 4;
+                const r = framePx[idx], g = framePx[idx+1], b = framePx[idx+2], a = framePx[idx+3];
+                // Anggap piksel "gelap" jika brightness < 40 atau alpha kecil
+                const brightness = (r + g + b) / 3;
+                if (brightness < 45 || a < 200) {
+                  framePx[idx]   = photoPx[idx];
+                  framePx[idx+1] = photoPx[idx+1];
+                  framePx[idx+2] = photoPx[idx+2];
+                  framePx[idx+3] = 255;
+                }
+              }
+            }
+          });
+
+          ctx.putImageData(frameData, 0, 0);
           resultOverlay.style.display = 'flex';
-          return;
-        }
-
-        // 3. Gambar tiap foto DI BELAKANG frame menggunakan destination-over
-        //    (foto hanya mengisi piksel yang masih transparan = area lubang frame)
-        let loadedCount = 0;
-        capturedPhotos.forEach((src, i) => {
-          const img = new Image();
-          img.onload = () => {
-            let x, y, pw, ph, angle = 0;
-            if (theme.photoBoxes && theme.photoBoxes[i]) {
-              x     = theme.photoBoxes[i].x;
-              y     = theme.photoBoxes[i].y;
-              pw    = theme.photoBoxes[i].w;
-              ph    = theme.photoBoxes[i].h;
-              angle = theme.photoBoxes[i].angle || 0;
-            }
-
-            ctx.save();
-            ctx.globalCompositeOperation = 'destination-over';
-            if (angle !== 0) {
-              ctx.translate(x + pw / 2, y + ph / 2);
-              ctx.rotate(angle);
-              ctx.translate(-(x + pw / 2), -(y + ph / 2));
-            }
-            // Clip ke area photobox agar foto tidak melebar ke luar kotak
-            ctx.beginPath();
-            ctx.rect(x, y, pw, ph);
-            ctx.clip();
-            drawImageCover(ctx, img, x, y, pw, ph);
-            ctx.restore();
-
-            loadedCount++;
-            if (loadedCount === capturedPhotos.length) {
-              // 4. Isi background paling belakang
-              ctx.globalCompositeOperation = 'destination-over';
-              ctx.fillStyle = theme.bg;
-              ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
-              // Kembalikan mode normal
-              ctx.globalCompositeOperation = 'source-over';
-              resultOverlay.style.display = 'flex';
-            }
-          };
-          img.src = src;
         });
       };
       frameImg.src = theme.url;
-      return; // Selesai untuk image frames
+      return;
     }
 
     // ============================================================
@@ -562,6 +574,8 @@
     else { sw = img.width; sh = sw / targetRatio; sx = 0; sy = (img.height - sh) / 2; }
     ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
   }
+  // Alias yang menerima context apapun (dipakai untuk offscreen canvas)
+  const drawImageCoverCtx = drawImageCover;
 
   function drawPattern(ctx, theme, w, h) {
     ctx.save(); ctx.globalAlpha = 0.15; ctx.fillStyle = theme.accent;
