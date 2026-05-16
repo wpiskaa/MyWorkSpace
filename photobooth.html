@@ -75,9 +75,25 @@
       cursor: pointer; background: #151530; transition: 0.2s;
       display: flex; flex-direction: column; align-items: center; justify-content: center; 
       gap: 4px; font-size: 18px; color: var(--text3);
+      overflow: hidden; position: relative;
     }
     .selector-item.active { border-color: var(--purple); background: rgba(124,58,237,0.15); color: var(--purple-l); }
     .selector-item span { font-size: 8px; font-weight: 700; text-transform: uppercase; }
+    /* Frame preview items dengan thumbnail gambar */
+    .frame-preview-item {
+      aspect-ratio: 1/2; padding: 0; overflow: hidden; position: relative;
+    }
+    .frame-preview-item img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+    .frame-preview-item span {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.7); color: #fff; font-size: 9px; font-weight: 800;
+      text-transform: uppercase; padding: 4px 2px; text-align: center;
+      border-radius: 0 0 10px 10px; letter-spacing: 0.5px;
+    }
+    .frame-preview-item.active { border-color: var(--purple); box-shadow: 0 0 15px rgba(124,58,237,0.5); }
+    .frame-preview-item.active img { opacity: 1; }
+    .frame-preview-item img { opacity: 0.75; transition: 0.2s; }
+    .frame-preview-item:hover img { opacity: 1; }
     
     .action-group { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
     .btn-capture {
@@ -157,23 +173,31 @@
 
     <aside class="booth-sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-title">📏 Kisi Foto</div>
-        <div class="selector-grid" id="gridSelector" style="grid-template-columns: repeat(2, 1fr);">
-          <div class="selector-item active" data-grid="1x3">🎞️<span>Strip 3</span></div>
-          <div class="selector-item" data-grid="1x1">📸<span>Single</span></div>
+        <div class="sidebar-title">✨ Pilih Frame</div>
+        <div class="selector-grid" id="frameSelector" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="selector-item frame-preview-item active" data-frame="strip3biru" data-grid="1x3">
+            <img src="assets/Frame Photobooth/Frame 3 Strip Biru.png" alt="Strip 3 Biru" style="width:100%;height:100%;object-fit:cover;border-radius:8px;opacity:0.85;">
+            <span>3 Strip Biru</span>
+          </div>
+          <div class="selector-item frame-preview-item" data-frame="strip3ungu" data-grid="1x3">
+            <img src="assets/Frame Photobooth/Frame 3 Strip Ungu.png" alt="Strip 3 Ungu" style="width:100%;height:100%;object-fit:cover;border-radius:8px;opacity:0.85;">
+            <span>3 Strip Ungu</span>
+          </div>
+          <div class="selector-item frame-preview-item" data-frame="strip1biru" data-grid="1x1">
+            <img src="assets/Frame Photobooth/Frame 1 Strip Biru.png" alt="Strip 1 Biru" style="width:100%;height:100%;object-fit:cover;border-radius:8px;opacity:0.85;">
+            <span>1 Strip Biru</span>
+          </div>
+          <div class="selector-item frame-preview-item" data-frame="strip1ungu" data-grid="1x1">
+            <img src="assets/Frame Photobooth/Frame 1 Strip Ungu.png" alt="Strip 1 Ungu" style="width:100%;height:100%;object-fit:cover;border-radius:8px;opacity:0.85;">
+            <span>1 Strip Ungu</span>
+          </div>
         </div>
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-title">✨ Tema Frame</div>
-        <div class="selector-grid" id="frameSelector">
-          <div class="selector-item" data-frame="custom1">🖼️<span>FrameKu</span></div>
-          <div class="selector-item active" data-frame="checkered">🏁<span>Grid</span></div>
-          <div class="selector-item" data-frame="polkadot">🔵<span>Dots</span></div>
-          <div class="selector-item" data-frame="flowers">🌻<span>Bloom</span></div>
-          <div class="selector-item" data-frame="neon">🌈<span>Neon</span></div>
-          <div class="selector-item" data-frame="minimal">🫧<span>Soft</span></div>
-          <div class="selector-item" data-frame="wavy">〰️<span>Wave</span></div>
+        <div class="sidebar-title">📏 Kisi Foto</div>
+        <div id="gridInfo" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--purple-l);font-weight:700;text-align:center;">
+          🎞️ 3 Foto (Strip 3)
         </div>
       </div>
 
@@ -242,26 +266,59 @@
   const statusDots = document.getElementById('statusDots');
   
   let capturedPhotos = [];
-  let currentFrame = 'checkered';
+  let currentFrame = 'strip3biru';
   let currentGrid = '1x3';
   let currentTimer = 3;
 
+  // ============================================================
+  // KONFIGURASI FRAME — sesuaikan photoBoxes jika perlu dikalibrasi
+  // Koordinat diukur dari gambar asli (pixel aktual frame)
+  // ============================================================
   const FRAME_CONFIG = {
-    custom1: { 
-      bg: '#fff', type: 'image', url: 'assets/Frame Photobooth/Frame.png', overlay: true, stickers: [],
-      fixedSize: { w: 1044, h: 2803 },
+    // --- Frame 3 Strip Biru (2086 x 5606) ---
+    strip3biru: {
+      bg: '#0d1b3e', type: 'image',
+      url: 'assets/Frame Photobooth/Frame 3 Strip Biru.png',
+      overlay: true, stickers: [],
+      fixedSize: { w: 2086, h: 5606 },
       photoBoxes: [
-        { x: 110, y: 457, w: 767, h: 573 },
-        { x: 217, y: 991, w: 685, h: 560 },
-        { x: 72, y: 1504, w: 700, h: 531 }
+        { x: 83,  y: 650,  w: 1730, h: 1060, angle: -0.04 },
+        { x: 140, y: 1740, w: 1730, h: 1060, angle:  0.04 },
+        { x: 60,  y: 2760, w: 1830, h: 1060, angle: -0.02 }
       ]
     },
-    checkered: { bg: '#fff', accent: '#7c3aed', type: 'grid', stickers: ['⭐', '✨', '⚡', '🌈', '💎'] },
-    polkadot: { bg: '#ffe4e6', accent: '#fb7185', type: 'dots', stickers: ['🧸', '🎀', '🍭', '🍓', '🍰'] },
-    wavy: { bg: '#ddd6fe', accent: '#7c3aed', type: 'wave', stickers: ['🌊', '🫧', '💎', '🧜‍♀️', '🎐'] },
-    flowers: { bg: '#fef3c7', accent: '#fbbf24', type: 'flower', stickers: ['🌻', '🌿', '🦋', '🐝', '🌷'] },
-    neon: { bg: '#050510', accent: '#ec4899', type: 'neon', stickers: ['🌈', '🔥', '🤟', '🚀', '👽'] },
-    minimal: { bg: '#f1f5f9', accent: '#94a3b8', type: 'minimal', stickers: ['☁️', '❄️', '🕊️', '✉️', '🍵'] }
+    // --- Frame 3 Strip Ungu (2086 x 5606) ---
+    strip3ungu: {
+      bg: '#1a0030', type: 'image',
+      url: 'assets/Frame Photobooth/Frame 3 Strip Ungu.png',
+      overlay: true, stickers: [],
+      fixedSize: { w: 2086, h: 5606 },
+      photoBoxes: [
+        { x: 83,  y: 650,  w: 1730, h: 1060, angle: -0.04 },
+        { x: 140, y: 1740, w: 1730, h: 1060, angle:  0.04 },
+        { x: 60,  y: 2760, w: 1830, h: 1060, angle: -0.02 }
+      ]
+    },
+    // --- Frame 1 Strip Biru (3076 x 5507) ---
+    strip1biru: {
+      bg: '#0a1628', type: 'image',
+      url: 'assets/Frame Photobooth/Frame 1 Strip Biru.png',
+      overlay: true, stickers: [],
+      fixedSize: { w: 3076, h: 5507 },
+      photoBoxes: [
+        { x: 290, y: 1230, w: 2490, h: 1930, angle: 0 }
+      ]
+    },
+    // --- Frame 1 Strip Ungu (3094 x 5538) ---
+    strip1ungu: {
+      bg: '#12002a', type: 'image',
+      url: 'assets/Frame Photobooth/Frame 1 Strip Ungu.png',
+      overlay: true, stickers: [],
+      fixedSize: { w: 3094, h: 5538 },
+      photoBoxes: [
+        { x: 270, y: 1230, w: 2540, h: 1960, angle: 0 }
+      ]
+    }
   };
 
   async function initCamera() {
@@ -273,19 +330,35 @@
     } catch (err) { alert('Akses kamera gagal! Silakan gunakan tombol impor jika kamera tidak tersedia.'); }
   }
 
-  function setupSelector(id, callback) {
-    document.querySelectorAll(`#${id} .selector-item`).forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll(`#${id} .selector-item`).forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        callback(item.dataset[id.replace('Selector', '')]);
-      });
+  // Setup frame selector — otomatis ganti grid sesuai frame yang dipilih
+  document.querySelectorAll('#frameSelector .selector-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('#frameSelector .selector-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      currentFrame = item.dataset.frame;
+      currentGrid = item.dataset.grid || '1x3';
+      updateGridInfo();
+      updateDots();
     });
-  }
+  });
 
-  setupSelector('gridSelector', val => { currentGrid = val; updateDots(); });
-  setupSelector('frameSelector', val => { currentFrame = val; });
-  setupSelector('timerSelector', val => { currentTimer = parseInt(val); });
+  // Timer selector
+  document.querySelectorAll('#timerSelector .selector-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('#timerSelector .selector-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      currentTimer = parseInt(item.dataset.timer);
+    });
+  });
+
+  function updateGridInfo() {
+    const gridInfo = document.getElementById('gridInfo');
+    if (currentGrid === '1x3') {
+      gridInfo.innerHTML = '🎞️ 3 Foto (Strip 3)';
+    } else {
+      gridInfo.innerHTML = '📸 1 Foto (Single)';
+    }
+  }
 
   function updateDots() {
     const count = parseInt(currentGrid.split('x')[0]) * parseInt(currentGrid.split('x')[1]);
@@ -312,10 +385,11 @@
   fileInput.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     const count = parseInt(currentGrid.split('x')[0]) * parseInt(currentGrid.split('x')[1]);
-    if(files.length < count) return alert(`Silakan pilih minimal ${count} foto untuk kisi ini.`);
+    const needed = count;
+    if(files.length < needed) return alert(`Frame ini butuh ${needed} foto. Silakan pilih ${needed} foto.`);
     
     capturedPhotos = [];
-    for(let i=0; i<count; i++) {
+    for(let i=0; i<needed; i++) {
       const dataUrl = await readFile(files[i]);
       capturedPhotos.push(dataUrl);
     }
@@ -378,13 +452,14 @@
       capturedPhotos.forEach((src, i) => {
         const img = new Image();
         img.onload = () => {
-          let x, y, pw, ph;
+          let x, y, pw, ph, angle = 0;
           
           if (theme.photoBoxes && theme.photoBoxes[i]) {
-            x = theme.photoBoxes[i].x;
-            y = theme.photoBoxes[i].y;
-            pw = theme.photoBoxes[i].w;
-            ph = theme.photoBoxes[i].h;
+            x     = theme.photoBoxes[i].x;
+            y     = theme.photoBoxes[i].y;
+            pw    = theme.photoBoxes[i].w;
+            ph    = theme.photoBoxes[i].h;
+            angle = theme.photoBoxes[i].angle || 0;
           } else {
             const photoW = 600, photoH = photoW * (3/4), padding = 60, gap = 30;
             const r = Math.floor(i / cols), c = i % cols;
@@ -400,11 +475,21 @@
             ctx.strokeStyle = theme.accent; ctx.lineWidth = 6;
             drawRoundedRect(ctx, x - 5, y - 5, pw + 10, ph + 10, 25, false, true);
           }
+
+          // Gambar foto di dalam kotak frame (dengan rotasi jika ada)
           ctx.save();
-          drawRoundedRect(ctx, x, y, pw, ph, 20, true, false);
+          if (angle !== 0) {
+            // Rotasi di sekitar titik tengah photobox
+            ctx.translate(x + pw / 2, y + ph / 2);
+            ctx.rotate(angle);
+            ctx.translate(-(x + pw / 2), -(y + ph / 2));
+          }
+          ctx.beginPath();
+          ctx.rect(x, y, pw, ph);
           ctx.clip();
           drawImageCover(ctx, img, x, y, pw, ph);
           ctx.restore();
+
           if (theme.stickers && theme.stickers.length > 1) {
             drawAestheticStickers(ctx, x, y, pw, ph, theme.stickers);
           }
