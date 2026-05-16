@@ -440,52 +440,103 @@
     const previewScale = (window.innerWidth < 900 ? 300 : 400) / resultCanvas.width;
     resultCanvas.style.width = (resultCanvas.width * previewScale) + 'px';
 
-    const drawPhotosAndFinalize = (bgImage) => {
-      ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
-      if (bgImage && !theme.overlay) {
-        ctx.drawImage(bgImage, 0, 0, resultCanvas.width, resultCanvas.height);
-      } else if (!bgImage && theme.type !== 'image') {
-        drawPattern(ctx, theme, resultCanvas.width, resultCanvas.height);
-      }
+    // ============================================================
+    // RENDERING FRAME GAMBAR (1-strip & 3-strip)
+    // Urutan: frame dulu → foto di belakang frame (destination-over)
+    // → background paling belakang
+    // ============================================================
+    if (theme.type === 'image') {
+      const frameImg = new Image();
+      frameImg.onload = () => {
+        // 1. Bersihkan canvas sepenuhnya (transparan)
+        ctx.clearRect(0, 0, resultCanvas.width, resultCanvas.height);
+
+        // 2. Gambar frame PNG di lapisan paling atas (mode normal)
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(frameImg, 0, 0, resultCanvas.width, resultCanvas.height);
+
+        // Jika tidak ada foto, langsung tampilkan
+        if (capturedPhotos.length === 0) {
+          ctx.globalCompositeOperation = 'destination-over';
+          ctx.fillStyle = theme.bg;
+          ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
+          ctx.globalCompositeOperation = 'source-over';
+          resultOverlay.style.display = 'flex';
+          return;
+        }
+
+        // 3. Gambar tiap foto DI BELAKANG frame menggunakan destination-over
+        //    (foto hanya mengisi piksel yang masih transparan = area lubang frame)
+        let loadedCount = 0;
+        capturedPhotos.forEach((src, i) => {
+          const img = new Image();
+          img.onload = () => {
+            let x, y, pw, ph, angle = 0;
+            if (theme.photoBoxes && theme.photoBoxes[i]) {
+              x     = theme.photoBoxes[i].x;
+              y     = theme.photoBoxes[i].y;
+              pw    = theme.photoBoxes[i].w;
+              ph    = theme.photoBoxes[i].h;
+              angle = theme.photoBoxes[i].angle || 0;
+            }
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-over';
+            if (angle !== 0) {
+              ctx.translate(x + pw / 2, y + ph / 2);
+              ctx.rotate(angle);
+              ctx.translate(-(x + pw / 2), -(y + ph / 2));
+            }
+            // Clip ke area photobox agar foto tidak melebar ke luar kotak
+            ctx.beginPath();
+            ctx.rect(x, y, pw, ph);
+            ctx.clip();
+            drawImageCover(ctx, img, x, y, pw, ph);
+            ctx.restore();
+
+            loadedCount++;
+            if (loadedCount === capturedPhotos.length) {
+              // 4. Isi background paling belakang
+              ctx.globalCompositeOperation = 'destination-over';
+              ctx.fillStyle = theme.bg;
+              ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
+              // Kembalikan mode normal
+              ctx.globalCompositeOperation = 'source-over';
+              resultOverlay.style.display = 'flex';
+            }
+          };
+          img.src = src;
+        });
+      };
+      frameImg.src = theme.url;
+      return; // Selesai untuk image frames
+    }
+
+    // ============================================================
+    // RENDERING FRAME PATTERN (non-image: grid, dots, dll)
+    // ============================================================
+    const drawPhotosAndFinalize = () => {
+      ctx.fillStyle = theme.bg;
+      ctx.fillRect(0, 0, resultCanvas.width, resultCanvas.height);
+      drawPattern(ctx, theme, resultCanvas.width, resultCanvas.height);
 
       let loadedCount = 0;
       capturedPhotos.forEach((src, i) => {
         const img = new Image();
         img.onload = () => {
-          let x, y, pw, ph, angle = 0;
-          
-          if (theme.photoBoxes && theme.photoBoxes[i]) {
-            x     = theme.photoBoxes[i].x;
-            y     = theme.photoBoxes[i].y;
-            pw    = theme.photoBoxes[i].w;
-            ph    = theme.photoBoxes[i].h;
-            angle = theme.photoBoxes[i].angle || 0;
-          } else {
-            const photoW = 600, photoH = photoW * (3/4), padding = 60, gap = 30;
-            const r = Math.floor(i / cols), c = i % cols;
-            x = padding + (c * (photoW + gap));
-            y = padding + (r * (photoH + gap));
-            pw = photoW;
-            ph = photoH;
-          }
+          const photoW = 600, photoH = photoW * (3/4), padding = 60, gap = 30;
+          const r = Math.floor(i / cols), c = i % cols;
+          const x = padding + (c * (photoW + gap));
+          const y = padding + (r * (photoH + gap));
+          const pw = photoW, ph = photoH;
 
-          if (theme.type !== 'image') {
-            ctx.strokeStyle = theme.accent + '22'; ctx.lineWidth = 20;
-            drawRoundedRect(ctx, x - 15, y - 15, pw + 30, ph + 30, 35, false, true);
-            ctx.strokeStyle = theme.accent; ctx.lineWidth = 6;
-            drawRoundedRect(ctx, x - 5, y - 5, pw + 10, ph + 10, 25, false, true);
-          }
+          ctx.strokeStyle = theme.accent + '22'; ctx.lineWidth = 20;
+          drawRoundedRect(ctx, x - 15, y - 15, pw + 30, ph + 30, 35, false, true);
+          ctx.strokeStyle = theme.accent; ctx.lineWidth = 6;
+          drawRoundedRect(ctx, x - 5, y - 5, pw + 10, ph + 10, 25, false, true);
 
-          // Gambar foto di dalam kotak frame (dengan rotasi jika ada)
           ctx.save();
-          if (angle !== 0) {
-            // Rotasi di sekitar titik tengah photobox
-            ctx.translate(x + pw / 2, y + ph / 2);
-            ctx.rotate(angle);
-            ctx.translate(-(x + pw / 2), -(y + ph / 2));
-          }
-          ctx.beginPath();
-          ctx.rect(x, y, pw, ph);
+          drawRoundedRect(ctx, x, y, pw, ph, 20, true, false);
           ctx.clip();
           drawImageCover(ctx, img, x, y, pw, ph);
           ctx.restore();
@@ -494,20 +545,13 @@
             drawAestheticStickers(ctx, x, y, pw, ph, theme.stickers);
           }
           loadedCount++;
-          if(loadedCount === capturedPhotos.length) finalizeCanvas(ctx, theme, bgImage);
+          if (loadedCount === capturedPhotos.length) finalizeCanvas(ctx, theme, null);
         };
         img.src = src;
       });
-      if(capturedPhotos.length === 0) finalizeCanvas(ctx, theme, bgImage);
+      if (capturedPhotos.length === 0) finalizeCanvas(ctx, theme, null);
     };
-
-    if (theme.type === 'image') {
-      const bgImg = new Image();
-      bgImg.onload = () => drawPhotosAndFinalize(bgImg);
-      bgImg.src = theme.url;
-    } else {
-      drawPhotosAndFinalize(null);
-    }
+    drawPhotosAndFinalize();
   }
 
   function drawImageCover(ctx, img, x, y, w, h) {
