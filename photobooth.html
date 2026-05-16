@@ -480,11 +480,9 @@
               ctx.rotate(angle);
               ctx.translate(-(pw / 2), -(ph / 2));
               
-              // Tambahkan margin yang cukup besar (-40) agar foto benar-benar
-              // menutupi seluruh area semi-transparan (glow) di lubang frame.
-              // Jarak antar frame di 3-strip adalah ~98px, jadi margin 40px sangat aman
-              // dan tidak akan bocor ke foto sebelah.
-              drawImageCoverCtx(ctx, img, -40, -40, pw + 80, ph + 80);
+              // Tambahkan margin kecil (-10) agar foto menutupi gradasi pinggiran
+              // tanpa berisiko tumpang tindih (tembus) dengan foto di atas/bawahnya.
+              drawImageCoverCtx(ctx, img, -10, -10, pw + 20, ph + 20);
               ctx.restore();
             }
             if (++loadedCount === capturedPhotos.length) {
