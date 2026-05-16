@@ -442,9 +442,10 @@
 
     // ============================================================
     // RENDERING FRAME GAMBAR (1-strip & 3-strip)
-    // Strategi Baru: Gambar frame dulu, lalu gambar foto DI ATAS
-    // area kotak hitam frame. Karena koordinat sekarang presisi,
-    // foto akan menutupi kotak hitam dengan sempurna.
+    // Strategi Baru: Frame PNG sudah transparan di bagian lubangnya.
+    // 1. Gambar frame di atas (source-over)
+    // 2. Gambar foto di bawahnya (destination-over)
+    // 3. Isi background paling bawah (destination-over)
     // ============================================================
     if (theme.type === 'image') {
       const frameImg = new Image();
@@ -452,15 +453,20 @@
         const W = resultCanvas.width, H = resultCanvas.height;
         ctx.clearRect(0, 0, W, H);
 
-        // 1. Gambar frame base
+        // 1. Gambar frame (area foto sudah transparan)
+        ctx.globalCompositeOperation = 'source-over';
         ctx.drawImage(frameImg, 0, 0, W, H);
 
         if (capturedPhotos.length === 0) {
+          ctx.globalCompositeOperation = 'destination-over';
+          ctx.fillStyle = theme.bg;
+          ctx.fillRect(0, 0, W, H);
+          ctx.globalCompositeOperation = 'source-over';
           resultOverlay.style.display = 'flex';
           return;
         }
 
-        // 2. Gambar setiap foto tepat di atas lubang frame
+        // 2. Gambar foto di bawah frame
         let loadedCount = 0;
         capturedPhotos.forEach((src, i) => {
           const img = new Image();
@@ -469,30 +475,23 @@
               const { x, y, w: pw, h: ph, angle = 0 } = theme.photoBoxes[i];
               
               ctx.save();
+              ctx.globalCompositeOperation = 'destination-over';
               ctx.translate(x + pw / 2, y + ph / 2);
               ctx.rotate(angle);
               ctx.translate(-(pw / 2), -(ph / 2));
               
-              // Clip foto dengan rounded rect agar ujungnya halus & pas dengan frame
-              const cornerRadius = 25; // Sesuaikan agar ujung foto membulat
-              ctx.beginPath();
-              ctx.moveTo(cornerRadius, 0);
-              ctx.lineTo(pw - cornerRadius, 0);
-              ctx.quadraticCurveTo(pw, 0, pw, cornerRadius);
-              ctx.lineTo(pw, ph - cornerRadius);
-              ctx.quadraticCurveTo(pw, ph, pw - cornerRadius, ph);
-              ctx.lineTo(cornerRadius, ph);
-              ctx.quadraticCurveTo(0, ph, 0, ph - cornerRadius);
-              ctx.lineTo(0, cornerRadius);
-              ctx.quadraticCurveTo(0, 0, cornerRadius, 0);
-              ctx.closePath();
-              ctx.clip();
-
-              // Tambah sedikit margin supaya tidak ada gap (overlap tipis)
-              drawImageCoverCtx(ctx, img, -2, -2, pw + 4, ph + 4);
+              // Tambahkan margin ekstra (misal -10, -10, pw+20, ph+20) 
+              // agar foto pasti mengisi seluruh area di balik frame tanpa ada celah
+              drawImageCoverCtx(ctx, img, -10, -10, pw + 20, ph + 20);
               ctx.restore();
             }
             if (++loadedCount === capturedPhotos.length) {
+              // 3. Isi background paling bawah (kalau frame butuh background)
+              ctx.globalCompositeOperation = 'destination-over';
+              ctx.fillStyle = theme.bg;
+              ctx.fillRect(0, 0, W, H);
+              ctx.globalCompositeOperation = 'source-over';
+              
               resultOverlay.style.display = 'flex';
             }
           };
