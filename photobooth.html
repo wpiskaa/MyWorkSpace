@@ -712,39 +712,56 @@
     btnDownloadGIF.disabled = false;
   }
 
-  function renderFrameWithPhoto(frameImg, photoSrc, theme, boxIndex) {
+  // Render satu frame GIF: frame PNG + setiap slot diisi oleh fotonya masing-masing.
+  // photoSrcs adalah array: satu photoSrc untuk setiap slot (photoBox).
+  function renderFullStrip(frameImg, photoSrcs, theme) {
     return new Promise((resolve) => {
       const W = resultCanvas.width, H = resultCanvas.height;
       const offCanvas = document.createElement('canvas');
       offCanvas.width = W; offCanvas.height = H;
       const octx = offCanvas.getContext('2d');
 
-      const photoImg = new Image();
-      photoImg.onload = () => {
-        // Gambar frame dulu
-        octx.globalCompositeOperation = 'source-over';
-        octx.drawImage(frameImg, 0, 0, W, H);
+      // 1. Gambar frame PNG dulu (layer paling atas)
+      octx.globalCompositeOperation = 'source-over';
+      octx.drawImage(frameImg, 0, 0, W, H);
 
-        if (theme.photoBoxes && theme.photoBoxes[boxIndex]) {
-          const { x, y, w: pw, h: ph, angle = 0 } = theme.photoBoxes[boxIndex];
+      // 2. Untuk setiap slot, load & gambar foto di balik frame
+      const boxes = theme.photoBoxes || [];
+      const total = Math.min(photoSrcs.length, boxes.length);
+      let done = 0;
+
+      if (total === 0) {
+        octx.globalCompositeOperation = 'destination-over';
+        octx.fillStyle = theme.bg;
+        octx.fillRect(0, 0, W, H);
+        octx.globalCompositeOperation = 'source-over';
+        resolve(offCanvas);
+        return;
+      }
+
+      photoSrcs.slice(0, total).forEach((src, i) => {
+        const img = new Image();
+        img.onload = () => {
+          const { x, y, w: pw, h: ph, angle = 0 } = boxes[i];
           octx.save();
           octx.globalCompositeOperation = 'destination-over';
           octx.translate(x + pw / 2, y + ph / 2);
           octx.rotate(angle);
           octx.translate(-pw / 2, -ph / 2);
-          drawImageCoverCtx(octx, photoImg, -10, -10, pw + 20, ph + 20);
+          drawImageCoverCtx(octx, img, -10, -10, pw + 20, ph + 20);
           octx.restore();
-        }
 
-        // Isi background paling bawah
-        octx.globalCompositeOperation = 'destination-over';
-        octx.fillStyle = theme.bg;
-        octx.fillRect(0, 0, W, H);
-        octx.globalCompositeOperation = 'source-over';
-
-        resolve(offCanvas);
-      };
-      photoImg.src = photoSrc;
+          if (++done === total) {
+            // Background paling bawah
+            octx.globalCompositeOperation = 'destination-over';
+            octx.fillStyle = theme.bg;
+            octx.fillRect(0, 0, W, H);
+            octx.globalCompositeOperation = 'source-over';
+            resolve(offCanvas);
+          }
+        };
+        img.src = src;
+      });
     });
   }
 
@@ -772,37 +789,53 @@
     frameImg.src = theme.url;
     await new Promise(r => { if (frameImg.complete) r(); else frameImg.onload = r; });
 
-    // ▶ KUNCI KECEPATAN: Resolusi kecil + quality tinggi (angka besar = lebih cepat)
-    const maxGifW = 400;
+    // Resolusi lebih tinggi = kualitas lebih bagus
+    const maxGifW = 550;
     const scale = Math.min(1, maxGifW / resultCanvas.width);
     const gifW = Math.round(resultCanvas.width * scale);
     const gifH = Math.round(resultCanvas.height * scale);
 
     const gif = new GIF({
-      workers: 2,           // 2 worker cukup dan stabil
-      quality: 12,          // sweet spot: cepat & kualitas oke
+      workers: 2,
+      quality: 10,           // lebih bagus dari sebelumnya (12), sedikit lebih lambat
       width: gifW,
       height: gifH,
-      workerScript: 'js/gif.worker.js'  // LOKAL — wajib sama-origin agar Worker tidak diblokir
+      workerScript: 'js/gif.worker.js'
     });
 
     const totalPhotos = capturedPhotos.length;
+    const numBoxes = (theme.photoBoxes || []).length;
 
+    // =========================================================
+    // KONSEP BARU:
+    // Setiap frame GIF = strip LENGKAP dengan SATU POSE yang sama
+    // diisi ke SEMUA slot secara bersamaan, lalu berganti pose.
+    //
+    // Contoh Strip 3 (3 foto, 3 slot):
+    //   GIF Frame 1 → slot 1, 2, 3 semua diisi FOTO 1
+    //   GIF Frame 2 → slot 1, 2, 3 semua diisi FOTO 2
+    //   GIF Frame 3 → slot 1, 2, 3 semua diisi FOTO 3
+    //
+    // Hasilnya: semua slot berubah pose secara bersamaan → animasi!
+    // =========================================================
     for (let i = 0; i < totalPhotos; i++) {
       const pct = Math.round((i / totalPhotos) * 70);
       gifProgressFill.style.width = pct + '%';
-      gifStatusText.textContent = `Rendering foto ${i + 1} / ${totalPhotos}...`;
+      gifStatusText.textContent = `Rendering pose ${i + 1} / ${totalPhotos}...`;
       gifProgressLabel.textContent = pct + '%';
 
-      const frameCanvas = await renderFrameWithPhoto(frameImg, capturedPhotos[i], theme, i);
+      // Isi SEMUA slot dengan foto yang sama (pose ke-i)
+      const photoSrcs = Array(numBoxes).fill(capturedPhotos[i]);
+      const frameCanvas = await renderFullStrip(frameImg, photoSrcs, theme);
 
       const scaled = document.createElement('canvas');
       scaled.width = gifW; scaled.height = gifH;
       scaled.getContext('2d').drawImage(frameCanvas, 0, 0, gifW, gifH);
 
-      const delay = totalPhotos === 1 ? 2500 : 1400;
-      gif.addFrame(scaled, { delay, copy: true });
+      // Delay 1.2 detik per pose — cukup untuk dinikmati
+      gif.addFrame(scaled, { delay: 1200, copy: true });
     }
+
 
     gifProgressFill.style.width = '75%';
     gifStatusText.textContent = 'Encoding GIF... ⚡';
@@ -815,24 +848,31 @@
     });
 
     gif.on('finished', async (blob) => {
-      currentGIFBlob = blob;
+      // Pastikan blob bertipe image/gif agar download benar-benar .gif
+      currentGIFBlob = new Blob([blob], { type: 'image/gif' });
       gifProgressFill.style.width = '100%';
       gifProgressLabel.textContent = '100%';
-      gifStatusText.textContent = 'Mengunggah untuk QR Code...';
+      gifStatusText.textContent = 'Mengunggah GIF untuk QR Code...';
 
-      // ▶ Upload GIF blob ke ImgBB
+      // ▶ Upload GIF ke ImgBB — gunakan display_url (direct image link)
       try {
         const reader = new FileReader();
         reader.onload = async (e) => {
           const base64 = e.target.result.split(',')[1];
           const formData = new FormData();
           formData.append('image', base64);
+          formData.append('name', `photobooth_gif_${Date.now()}`);
           const resp = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
             method: 'POST', body: formData
           });
           const data = await resp.json();
           if (data.success) {
-            const gifUrl = data.data.url.replace('i.ibb.co', 'i.ibb.co.com');
+            // Pakai display_url = link langsung ke file GIF (bukan halaman viewer)
+            // Jika Indihome/Telkomsel blokir i.ibb.co, ganti domain-nya
+            let gifUrl = (data.data.display_url || data.data.url);
+            if (gifUrl.includes('i.ibb.co')) {
+              gifUrl = gifUrl.replace('https://i.ibb.co', 'https://i.ibb.co.com');
+            }
             document.getElementById('gifStepRender').style.display = 'none';
             document.getElementById('gifStepQR').style.display = 'block';
             btnDownloadGIF.disabled = false;
@@ -840,11 +880,11 @@
               text: gifUrl,
               width: 180, height: 180,
               colorDark: '#000', colorLight: '#fff',
-              correctLevel: QRCode.CorrectLevel.H
+              correctLevel: QRCode.CorrectLevel.M  // M = lebih kecil QR, lebih mudah di-scan
             });
-          } else { throw new Error('Upload failed'); }
+          } else { throw new Error('Upload failed: ' + JSON.stringify(data)); }
         };
-        reader.readAsDataURL(blob);
+        reader.readAsDataURL(currentGIFBlob);
       } catch (err) {
         console.error('GIF upload error:', err);
         document.getElementById('gifStepRender').style.display = 'none';
